@@ -84,6 +84,7 @@
 
   .prediction-pill.abnormal { background: rgba(248,113,113,0.14); color: #F87171; border-color: rgba(248,113,113,0.3); }
   .prediction-pill.normal { background: rgba(74,222,128,0.14); color: #4ADE80; border-color: rgba(74,222,128,0.3); }
+  .prediction-pill.error { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border-color: rgba(255,255,255,0.15); }
 
   .confidence-label { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; margin-bottom: 4px; }
   .confidence-value { font-size: 32px; font-weight: 800; color: white; margin-bottom: 10px; }
@@ -225,52 +226,28 @@
     const params = new URLSearchParams(window.location.search);
     const type = params.get('type') || 'xray';
 
+    // No hardcoded demo numbers anymore — if there's no real result saved for this
+    // scan type, or it fails to parse, we say so honestly instead of showing fake data.
+    function noDataState(title, scanLabel, backHref) {
+      return {
+        title,
+        scanLabel,
+        prediction: 'No Result Available',
+        status: 'error',
+        confidence: null,
+        explainHeading: 'Nothing to show yet',
+        explainSub: 'We couldn’t find a completed analysis for this scan type.',
+        factors: ['Go back and upload a scan to see real results here.'],
+        backHref,
+        noHeatmap: true,
+        noData: true
+      };
+    }
+
     const config = {
-      xray: {
-        title: 'Chest X-Ray Results',
-        scanLabel: 'Your Scan',
-        prediction: 'Abnormality Detected',
-        status: 'abnormal',
-        confidence: 94.2,
-        explainHeading: 'Where the model looked',
-        explainSub: 'Highlighted areas show regions that most influenced this prediction.',
-        factors: [
-          'Increased opacity in lower lung field',
-          'Irregular tissue density pattern',
-          'Asymmetric lung markings'
-        ],
-        backHref: 'upload.html?type=xray'
-      },
-      ct: {
-        title: 'CT Scan Results',
-        scanLabel: 'Your Scan',
-        prediction: 'Abnormality Detected',
-        status: 'abnormal',
-        confidence: 88.5,
-        explainHeading: 'Where the model looked',
-        explainSub: 'Highlighted areas show regions that most influenced this prediction.',
-        factors: [
-          'Nodule detected in upper right lobe',
-          'Irregular tissue border',
-          'Density inconsistent with surrounding tissue'
-        ],
-        backHref: 'upload.html?type=ct'
-      },
-      ecg: {
-        title: 'ECG Signal Results',
-        scanLabel: 'Your Signal',
-        prediction: 'Abnormal Pattern Detected',
-        status: 'abnormal',
-        confidence: 91.7,
-        explainHeading: 'Signal characteristics',
-        explainSub: 'Key patterns identified from your ECG waveform.',
-        factors: [
-          'Irregular R-R interval pattern',
-          'Elevated signal variation',
-          'Abnormal QRS complex width'
-        ],
-        backHref: 'upload-ecg.html'
-      }
+      xray: noDataState('Chest X-Ray Results', 'Your Scan', 'upload.html?type=xray'),
+      ct: noDataState('CT Scan Results', 'Your Scan', 'upload.html?type=ct'),
+      ecg: noDataState('ECG Signal Results', 'Your Signal', 'upload-ecg.html')
     };
 
     let current = config[type] || config.xray;
@@ -328,7 +305,7 @@
             backHref: 'upload-ecg.html'
           };
         } catch (e) {
-          console.warn('Could not parse saved ECG result, falling back to demo data.', e);
+          console.warn('Could not parse saved ECG result — showing error state instead of fake data.', e);
         }
       }
     }
@@ -372,7 +349,7 @@
             noHeatmap: true
           };
         } catch (e) {
-          console.warn('Could not parse saved X-ray result, falling back to demo data.', e);
+          console.warn('Could not parse saved X-ray result — showing error state instead of fake data.', e);
         }
       }
     }
@@ -400,7 +377,7 @@
             noHeatmap: true
           };
         } catch (e) {
-          console.warn('Could not parse saved CT result, falling back to demo data.', e);
+          console.warn('Could not parse saved CT result — showing error state instead of fake data.', e);
         }
       }
     }
@@ -413,11 +390,25 @@
     pill.textContent = current.prediction;
     pill.className = 'prediction-pill ' + current.status;
 
-    document.getElementById('confidenceLabel').textContent = current.confidenceLabel || 'Confidence';
-    document.getElementById('confidenceValue').textContent = current.confidence + '%';
+    const confidenceLabelEl = document.getElementById('confidenceLabel');
+    const confidenceValueEl = document.getElementById('confidenceValue');
+    const confidenceTrackEl = document.querySelector('.confidence-track');
     const fill = document.getElementById('confidenceFill');
-    fill.style.width = Math.min(current.confidence, 100) + '%';
-    fill.style.background = current.status === 'abnormal' ? '#F87171' : '#4ADE80';
+
+    if (current.noData || current.confidence === null || current.confidence === undefined) {
+      // No real result to show a number for — hide the confidence bar rather than show "null%"
+      confidenceLabelEl.style.display = 'none';
+      confidenceValueEl.style.display = 'none';
+      confidenceTrackEl.style.display = 'none';
+    } else {
+      confidenceLabelEl.style.display = '';
+      confidenceValueEl.style.display = '';
+      confidenceTrackEl.style.display = '';
+      confidenceLabelEl.textContent = current.confidenceLabel || 'Confidence';
+      confidenceValueEl.textContent = current.confidence + '%';
+      fill.style.width = Math.min(current.confidence, 100) + '%';
+      fill.style.background = current.status === 'abnormal' ? '#F87171' : '#4ADE80';
+    }
 
     document.getElementById('explainHeading').textContent = current.explainHeading;
     document.getElementById('explainSub').textContent = current.explainSub;
@@ -436,8 +427,8 @@
       document.getElementById('heatmapBox').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.35);font-size:13px;text-align:center;padding:0 20px;">Visual explainability coming soon</div>';
     }
 
-    // For ECG: plot the REAL waveform from the backend if we have one, otherwise
-    // fall back to a static illustration (e.g. when viewing demo/fallback data)
+    // For ECG: plot the REAL waveform from the backend if we have one. If there's no real
+    // result at all, show an honest "no data" placeholder instead of a fake zigzag.
     if (type === 'ecg') {
       if (ecgWaveform) {
         const width = 600;
@@ -465,11 +456,7 @@
           </svg>
         `;
       } else {
-        document.getElementById('scanBox').innerHTML = `
-          <svg class="waveform-svg" viewBox="0 0 400 100" fill="none" stroke="#93C5FD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M0 50 L40 50 L50 20 L60 80 L70 50 L110 50 L120 30 L130 50 L170 50 L180 15 L190 85 L200 50 L240 50 L250 30 L260 50 L300 50 L310 20 L320 80 L330 50 L400 50"/>
-          </svg>
-        `;
+        document.getElementById('scanBox').innerHTML = '<span class="placeholder-text">No signal to display — upload an ECG file to see the real waveform.</span>';
       }
     }
 
