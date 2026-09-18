@@ -308,6 +308,7 @@
     });
 
     analyzeBtn.addEventListener('click', async () => {
+
   if (!fileInput.files.length) return;
 
   const file = fileInput.files[0];
@@ -319,29 +320,64 @@
   formData.append('file', file);
 
   try {
-    const response = await fetch('http://localhost:8001/predict/xray', {
+
+    let apiUrl;
+    let resultPage;
+
+    if (type === 'ct') {
+
+      apiUrl = 'http://127.0.0.1:8000/predict/ct';
+      resultPage = 'result.html?type=ct';
+
+    } else {
+
+      apiUrl = 'http://localhost:8001/predict/xray';
+      resultPage = 'result.html?type=xray';
+
+    }
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       body: formData
     });
 
     if (!response.ok) {
-      throw new Error('X-ray analysis failed');
+      throw new Error('Analysis failed');
     }
 
     const result = await response.json();
 
-    // Save the model result so result.html can display it
-    localStorage.setItem('xrayResult', JSON.stringify(result));
+    if (type === 'ct') {
 
-    window.location.href = 'result.html?type=xray';
+      localStorage.setItem(
+        'medilens_ct_result',
+        JSON.stringify(result)
+      );
+
+    } else {
+
+      localStorage.setItem(
+        'xrayResult',
+        JSON.stringify(result)
+      );
+
+    }
+
+    window.location.href = resultPage;
 
   } catch (error) {
+
     console.error(error);
-    alert('Unable to connect to the X-ray AI backend. Please make sure the backend is running.');
+
+    alert(
+      'Unable to connect to the AI backend. Please make sure the backend is running.'
+    );
 
     analyzeBtn.disabled = false;
     analyzeBtn.textContent = 'Analyze →';
+
   }
+
 });
   </script>
 
