@@ -375,12 +375,22 @@
     // ⚠️ SET THIS to wherever Liya's X-ray backend is actually running.
     const XRAY_API_URL = 'https://retrain-scapegoat-remindful.ngrok-free.dev/predict/xray';
 
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
     analyzeBtn.addEventListener('click', async () => {
       if (!fileInput.files.length) return;
 
       if (type === 'ct' || type === 'xray') {
         const apiUrl = type === 'ct' ? `${CT_API_BASE_URL}/predict/ct` : XRAY_API_URL;
         const storageKey = type === 'ct' ? 'medilens_ct_result' : 'medilens_xray_result';
+        const imageStorageKey = type === 'ct' ? 'medilens_ct_image' : 'medilens_xray_image';
 
         analyzeBtn.disabled = true;
         analyzeBtn.textContent = 'Analyzing...';
@@ -400,6 +410,15 @@
 
           const data = await response.json();
           localStorage.setItem(storageKey, JSON.stringify(data));
+
+          // Save the actual uploaded image so result.html can show it, not a placeholder.
+          try {
+            const dataUrl = await readFileAsDataURL(fileInput.files[0]);
+            localStorage.setItem(imageStorageKey, dataUrl);
+          } catch (imgErr) {
+            console.warn('Could not save image preview:', imgErr);
+          }
+
           window.location.href = `result.html?type=${type}`;
         } catch (err) {
           console.error(`${type} prediction failed:`, err);
