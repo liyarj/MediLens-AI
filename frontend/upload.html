@@ -307,9 +307,42 @@
       analyzeBtn.disabled = true;
     });
 
-    analyzeBtn.addEventListener('click', () => {
-      window.location.href = `result.html?type=${type}`;
+    analyzeBtn.addEventListener('click', async () => {
+  if (!fileInput.files.length) return;
+
+  const file = fileInput.files[0];
+
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = 'Analyzing...';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch('http://localhost:8001/predict/xray', {
+      method: 'POST',
+      body: formData
     });
+
+    if (!response.ok) {
+      throw new Error('X-ray analysis failed');
+    }
+
+    const result = await response.json();
+
+    // Save the model result so result.html can display it
+    localStorage.setItem('xrayResult', JSON.stringify(result));
+
+    window.location.href = 'result.html?type=xray';
+
+  } catch (error) {
+    console.error(error);
+    alert('Unable to connect to the X-ray AI backend. Please make sure the backend is running.');
+
+    analyzeBtn.disabled = false;
+    analyzeBtn.textContent = 'Analyze →';
+  }
+});
   </script>
 
 </body>
