@@ -1,6 +1,7 @@
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, ImageOps
 from pathlib import Path
 import io
@@ -24,6 +25,13 @@ app = FastAPI(
     title="MediLens X-Ray AI API",
     version="1.0.0",
     description="AI-assisted Chest X-ray screening using DenseNet121 anomaly detection"
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
