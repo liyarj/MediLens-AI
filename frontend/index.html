@@ -5,183 +5,458 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MediLens AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .hero {
-    text-align: left;
-    margin-bottom: 40px;
+  body {
+    overflow-x: hidden;
+    background: #0B1220;
+    color: white;
   }
 
-  .hero h2 {
-    font-size: 40px;
+  /* Dark navbar override for this page */
+  .navbar {
+    background: rgba(11, 18, 32, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .navbar .brand-text h1 { color: white; }
+  .navbar .brand-text p { color: rgba(255,255,255,0.5); }
+  .navbar .nav-links a { color: rgba(255,255,255,0.65); }
+  .navbar .nav-links a:hover,
+  .navbar .nav-links a.active { color: #93C5FD; }
+
+  /* Ambient background glow, sits behind everything */
+  .ambient-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 780px;
+    background:
+      radial-gradient(ellipse 700px 420px at 15% 0%, rgba(37,99,235,0.28), transparent 60%),
+      radial-gradient(ellipse 500px 380px at 90% 10%, rgba(245,158,11,0.16), transparent 60%),
+      radial-gradient(ellipse 500px 380px at 40% 30%, rgba(22,163,74,0.12), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-section, .modality-section { position: relative; z-index: 1; }
+
+  /* ===== HERO ===== */
+  .hero-section {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 24px 56px;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 56px;
+    align-items: center;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
     font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-    margin-bottom: 12px;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
   }
 
-  .tagline-pill {
-    display: inline-block;
-    background: var(--primary-light);
-    color: var(--primary);
-    font-size: 13px;
+  .hero-eyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+
+  .hero-title {
+    font-size: 46px;
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: white;
+    margin-bottom: 18px;
+  }
+
+  .hero-title em {
+    font-style: normal;
+    background: linear-gradient(90deg, #60A5FA, #F59E0B, #4ADE80);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    color: rgba(255,255,255,0.62);
+    line-height: 1.6;
+    max-width: 460px;
+    margin-bottom: 28px;
+  }
+
+  .hero-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hero-scroll-link {
+    font-size: 14px;
     font-weight: 600;
-    padding: 6px 14px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+  }
+
+  .hero-scroll-link:hover { color: #FCD34D; }
+
+  /* ---- Brand panel (decorative visual anchor, not fabricated data) ---- */
+  .brand-panel {
+    position: relative;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 32px 28px;
+    color: white;
+    box-shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+
+  .brand-panel::before,
+  .brand-panel::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.35;
+  }
+
+  .brand-panel::before {
+    width: 160px; height: 160px;
+    background: #F59E0B;
+    top: -50px; right: -40px;
+  }
+
+  .brand-panel::after {
+    width: 140px; height: 140px;
+    background: #16A34A;
+    bottom: -50px; left: -30px;
+  }
+
+  .brand-panel-inner { position: relative; z-index: 1; }
+
+  .brand-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 22px;
+  }
+
+  .brand-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 26px;
+  }
+
+  .brand-ring {
+    position: relative;
+    width: 128px;
+    height: 128px;
+  }
+
+  .brand-ring svg { transform: rotate(-90deg); }
+  .brand-ring-track { fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 6; }
+  .brand-ring-fill {
+    fill: none;
+    stroke: url(#ringGradient);
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 320;
+    stroke-dashoffset: 40;
+  }
+
+  .brand-ring-icon {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .brand-ring-icon svg { width: 26px; height: 26px; stroke: white; }
+
+  .brand-modalities {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .brand-mod-item {
+    flex: 1;
+    text-align: center;
+  }
+
+  .brand-mod-icon {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+  }
+
+  .brand-mod-icon svg { width: 19px; height: 19px; }
+
+  .brand-mod-item.xray .brand-mod-icon { background: rgba(37,99,235,0.25); }
+  .brand-mod-item.xray .brand-mod-icon svg { stroke: #93C5FD; }
+
+  .brand-mod-item.ecg .brand-mod-icon { background: rgba(245,158,11,0.22); }
+  .brand-mod-item.ecg .brand-mod-icon svg { stroke: #FCD34D; }
+
+  .brand-mod-item.ct .brand-mod-icon { background: rgba(124,58,237,0.25); }
+  .brand-mod-item.ct .brand-mod-icon svg { stroke: #C4B5FD; }
+
+  .brand-mod-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.75); }
+
+  .brand-panel-footer {
+    text-align: center;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.55);
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ===== BENTO MODALITY SECTION ===== */
+  .modality-section {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 8px 24px 64px;
+  }
+
+  .section-heading-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .section-heading-row h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .section-heading-row span {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+  }
+
+  .bento-featured {
+    background: rgba(255,255,255,0.045);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .bento-featured:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px -12px rgba(37, 99, 235, 0.35);
+    border-color: rgba(96,165,250,0.5);
+  }
+
+  .bento-featured-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .bento-badge {
+    width: 54px; height: 54px;
+    border-radius: 14px;
+    background: rgba(37,99,235,0.18);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(96,165,250,0.3);
+  }
+
+  .bento-badge svg { width: 26px; height: 26px; stroke: #93C5FD; }
+
+  .bento-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #FCD34D;
+    background: rgba(245,158,11,0.16);
+    border: 1px solid rgba(245,158,11,0.3);
+    padding: 5px 10px;
     border-radius: 20px;
   }
 
-  /* Cards grid */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 22px;
-    margin-bottom: 48px;
+  .bento-featured h3 { font-size: 24px; font-weight: 700; color: white; margin-bottom: 8px; }
+  .bento-featured p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.55; max-width: 340px; }
+
+  .bento-mini-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 14px;
   }
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px 26px;
-    min-height: 232px;
+  .bento-mini-heat {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: radial-gradient(circle at 35% 40%, rgba(96,165,250,0.6) 0%, rgba(245,158,11,0.4) 35%, rgba(74,222,128,0.2) 60%, transparent 80%);
+    background-color: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+
+  .bento-mini-text { flex-grow: 1; }
+  .bento-mini-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
+  .bento-mini-track { height: 5px; background: rgba(255,255,255,0.12); border-radius: 3px; overflow: hidden; }
+  .bento-mini-fill { height: 100%; width: 82%; background: linear-gradient(90deg, #60A5FA, #F59E0B); border-radius: 3px; }
+
+  .bento-arrow-cta {
+    font-size: 13.5px; font-weight: 600; color: #93C5FD;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .bento-side-col {
     display: flex;
     flex-direction: column;
+    gap: 18px;
+  }
+
+  .bento-small {
+    background: rgba(255,255,255,0.045);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-  }
-
-  .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    border-color: var(--primary);
-  }
-
-  .card-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 18px;
-  }
-
-  .card-icon svg {
-    width: 26px;
-    height: 26px;
-  }
-
-  .card.xray .card-icon { background: #DBEAFE; }
-  .card.xray .card-icon svg { stroke: #2563EB; }
-
-  .card.ecg .card-icon { background: #FEF3C7; }
-  .card.ecg .card-icon svg { stroke: #F59E0B; }
-
-  .card.ct .card-icon { background: #EDE9FE; }
-  .card.ct .card-icon svg { stroke: #7C3AED; }
-
-  .card.risk .card-icon { background: #DCFCE7; }
-  .card.risk .card-icon svg { stroke: #16A34A; }
-
-  .card h3 {
-    font-size: 19px;
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-
-  .card p {
-    font-size: 13.5px;
-    color: var(--text-secondary);
-    line-height: 1.55;
-    flex-grow: 1;
-  }
-
-  .card-arrow {
-    margin-top: 18px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  /* How it works */
-  .how-it-works {
-    border-top: 1px solid var(--border);
-    padding-top: 24px;
-  }
-
-  .how-it-works h3 {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 18px;
-  }
-
-  .steps-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    max-width: 620px;
-    margin: 0 auto;
-  }
-
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     flex: 1;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   }
 
-  .step-number {
-    width: 20px;
-    height: 20px;
-    background: var(--primary-light);
-    color: var(--primary);
-    border-radius: 50%;
+  .bento-small:hover {
+    transform: translateX(4px);
+    box-shadow: 0 10px 28px -10px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255,255,255,0.28);
+  }
+
+  .bento-small-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .bento-small-icon svg { width: 21px; height: 21px; }
+
+  .bento-small.ecg .bento-small-icon { background: rgba(245,158,11,0.16); box-shadow: inset 0 0 0 1px rgba(245,158,11,0.35); }
+  .bento-small.ecg .bento-small-icon svg { stroke: #FCD34D; }
+
+  .bento-small.ct .bento-small-icon { background: rgba(124,58,237,0.18); box-shadow: inset 0 0 0 1px rgba(167,139,250,0.35); }
+  .bento-small.ct .bento-small-icon svg { stroke: #C4B5FD; }
+
+  .bento-small.risk .bento-small-icon { background: rgba(22,163,74,0.18); box-shadow: inset 0 0 0 1px rgba(74,222,128,0.35); }
+  .bento-small.risk .bento-small-icon svg { stroke: #4ADE80; }
+
+  .bento-small-text h4 { font-size: 15px; font-weight: 700; color: white; margin-bottom: 3px; }
+  .bento-small-text p { font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.4; }
+
+  /* ===== DARK HOW-IT-WORKS BAND ===== */
+  .how-band {
+    background: #0F172A;
+    padding: 56px 24px;
+  }
+
+  .how-inner {
+    max-width: 1180px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 10px;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .how-inner-title {
+    color: white;
+    font-size: 20px;
     font-weight: 700;
+    max-width: 240px;
+    line-height: 1.4;
+  }
+
+  .how-inner-title span { color: #60A5FA; }
+
+  .how-steps {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .how-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    max-width: 190px;
+  }
+
+  .how-step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(96,165,250,0.15);
+    border: 1px solid rgba(96,165,250,0.4);
+    color: #60A5FA;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
     flex-shrink: 0;
   }
 
-  .step-text {
-    font-size: 11.5px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    line-height: 1.3;
-  }
-
-  .step-arrow {
-    color: var(--text-muted);
-    font-size: 12px;
-    flex-shrink: 0;
-  }
+  .how-step-text h5 { color: white; font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
+  .how-step-text p { color: rgba(255,255,255,0.5); font-size: 12px; line-height: 1.4; }
 
   @media (max-width: 900px) {
-    .cards-grid { grid-template-columns: repeat(2, 1fr); }
-    .steps-row { flex-direction: column; gap: 12px; }
-    .step-arrow { display: none; }
-    .nav-links { gap: 16px; }
-    .navbar { padding: 12px 20px; }
+    .hero-section { grid-template-columns: 1fr; padding-top: 40px; }
+    .bento-grid { grid-template-columns: 1fr; }
+    .how-inner { flex-direction: column; align-items: flex-start; }
+    .hero-title { font-size: 34px; }
   }
 
   @media (max-width: 560px) {
-    .cards-grid { grid-template-columns: 1fr; }
-    .nav-links a:not(.nav-cta) { display: none; }
+    .preview-modalities { flex-direction: column; }
+    .bento-small { flex-direction: column; align-items: flex-start; }
   }
 </style>
 </head>
 <body>
+
+  <div class="ambient-glow"></div>
 
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -197,86 +472,184 @@
     </a>
     <div class="nav-links">
       <a href="index.html" class="active">Home</a>
-      <a href="about.html">About Us</a>
+      <a href="about.html">About</a>
       <a href="support.html">Support</a>
-      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
     </div>
   </nav>
 
-  <div class="container">
-    <div class="hero">
-      <h2>MediLens AI</h2>
-      <span class="tagline-pill">One place to screen X-rays, ECGs, and CT scans.</span>
-    </div>
-
-    <div class="cards-grid">
-      <div class="card xray" onclick="window.location.href='upload.html?type=xray'">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
-          </svg>
-        </div>
-        <h3>Chest X-Ray</h3>
-        <p>Screen lung imaging for signs of abnormality with visual explanations.</p>
-        <div class="card-arrow">Start screening →</div>
-      </div>
-
-      <div class="card ecg" onclick="window.location.href='upload-ecg.html'">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
-          </svg>
-        </div>
-        <h3>ECG Signal</h3>
-        <p>Detect irregular heart rhythms from waveform data instantly.</p>
-        <div class="card-arrow">Start screening →</div>
-      </div>
-
-      <div class="card ct" onclick="window.location.href='upload.html?type=ct'">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M12 3v18M3 12h18"/>
-          </svg>
-        </div>
-        <h3>CT Scan</h3>
-        <p>Analyze cross-sectional scans for structural findings.</p>
-        <div class="card-arrow">Start screening →</div>
-      </div>
-
-      <div class="card risk" onclick="window.location.href='risk-summary.html'">
-        <div class="card-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6l-9-4z"/>
-          </svg>
-        </div>
-        <h3>Combined Risk</h3>
-        <p>View a unified risk score across all analyzed scans.</p>
-        <div class="card-arrow">View summary →</div>
+  <!-- HERO -->
+  <section class="hero-section">
+    <div>
+      <div class="hero-eyebrow">AI-Powered Screening Support</div>
+      <h1 class="hero-title">One system for <em>X-ray, ECG &amp; CT</em> screening — explained, not just predicted.</h1>
+      <p class="hero-desc">MediLens brings imaging, signal, and scan analysis into a single explainable workflow, so every prediction comes with a reason, not just a number.</p>
+      <div class="hero-cta-row">
+        <a href="#modalities" class="hero-scroll-link">See how it works ↓</a>
       </div>
     </div>
 
-    <div class="how-it-works">
-      <h3>How It Works</h3>
-      <div class="steps-row">
-        <div class="step">
-          <div class="step-number">1</div>
-          <div class="step-text">Select a scan type</div>
+    <div class="brand-panel">
+      <div class="brand-panel-inner">
+        <div class="brand-eyebrow">What MediLens Screens For</div>
+
+        <div class="brand-ring-wrap">
+          <div class="brand-ring">
+            <svg viewBox="0 0 128 128">
+              <defs>
+                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#60A5FA"/>
+                  <stop offset="50%" stop-color="#F59E0B"/>
+                  <stop offset="100%" stop-color="#4ADE80"/>
+                </linearGradient>
+              </defs>
+              <circle class="brand-ring-track" cx="64" cy="64" r="58"/>
+              <circle class="brand-ring-fill" cx="64" cy="64" r="58"/>
+            </svg>
+            <div class="brand-ring-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 12h4l2-8 4 16 2-8h4"/>
+              </svg>
+            </div>
+          </div>
         </div>
-        <div class="step-arrow">→</div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <div class="step-text">Upload your file</div>
+
+        <div class="brand-modalities">
+          <div class="brand-mod-item xray">
+            <div class="brand-mod-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
+              </svg>
+            </div>
+            <div class="brand-mod-label">X-Ray</div>
+          </div>
+          <div class="brand-mod-item ecg">
+            <div class="brand-mod-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
+              </svg>
+            </div>
+            <div class="brand-mod-label">ECG</div>
+          </div>
+          <div class="brand-mod-item ct">
+            <div class="brand-mod-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 3v18M3 12h18"/>
+              </svg>
+            </div>
+            <div class="brand-mod-label">CT Scan</div>
+          </div>
         </div>
-        <div class="step-arrow">→</div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <div class="step-text">Get your report</div>
+
+        <div class="brand-panel-footer">Multimodal · Explainable · Built for triage</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODALITY BENTO GRID -->
+  <section class="modality-section" id="modalities">
+    <div class="section-heading-row">
+      <h2>Choose a screening path</h2>
+      <span>Select the data you have available</span>
+    </div>
+
+    <div class="bento-grid">
+      <div class="bento-featured" onclick="window.location.href='upload.html?type=xray'">
+        <div class="bento-featured-top">
+          <div class="bento-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
+            </svg>
+          </div>
+          <span class="bento-tag">Most common</span>
+        </div>
+        <div>
+          <h3>Chest X-Ray</h3>
+          <p>Upload a chest X-ray to screen for abnormalities, with a visual heatmap showing exactly what the model focused on.</p>
+        </div>
+        <div class="bento-mini-preview">
+          <div class="bento-mini-heat"></div>
+          <div class="bento-mini-text">
+            <div class="bento-mini-label">Sample: 94.2% confidence</div>
+            <div class="bento-mini-track"><div class="bento-mini-fill"></div></div>
+          </div>
+        </div>
+        <div class="bento-arrow-cta">Start X-Ray screening →</div>
+      </div>
+
+      <div class="bento-side-col">
+        <div class="bento-small ecg" onclick="window.location.href='upload-ecg.html'">
+          <div class="bento-small-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
+            </svg>
+          </div>
+          <div class="bento-small-text">
+            <h4>ECG Signal</h4>
+            <p>Detect irregular heart rhythms from waveform data.</p>
+          </div>
+        </div>
+
+        <div class="bento-small ct" onclick="window.location.href='upload.html?type=ct'">
+          <div class="bento-small-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 3v18M3 12h18"/>
+            </svg>
+          </div>
+          <div class="bento-small-text">
+            <h4>CT Scan</h4>
+            <p>Classify CT scans for structural findings.</p>
+          </div>
+        </div>
+
+        <div class="bento-small risk" onclick="window.location.href='risk-summary.html'">
+          <div class="bento-small-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 3 6v6c0 5 4 9 9 10 5-1 9-5 9-10V6l-9-4z"/>
+            </svg>
+          </div>
+          <div class="bento-small-text">
+            <h4>Combined Risk</h4>
+            <p>See a unified risk score across all analyzed scans.</p>
+          </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
+  <!-- DARK HOW IT WORKS -->
+  <section class="how-band">
+    <div class="how-inner">
+      <div class="how-inner-title">How it works, <span>in three steps</span></div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-num">1</div>
+          <div class="how-step-text">
+            <h5>Select a scan type</h5>
+            <p>Choose X-ray, ECG, or CT based on what you have.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">2</div>
+          <div class="how-step-text">
+            <h5>Upload your file</h5>
+            <p>Drop in your scan or signal data securely.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">3</div>
+          <div class="how-step-text">
+            <h5>Get your report</h5>
+            <p>See a prediction, confidence, and visual explanation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container" style="padding-top: 24px; padding-bottom: 40px;">
+    <p class="disclaimer" style="color: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.08);">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
   </div>
 
 </body>

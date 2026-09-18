@@ -5,30 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Upload Scan — MediLens AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
+  body {
+    background: #0B1220;
+    color: white;
+    overflow-x: hidden;
+  }
+
+  .navbar {
+    background: rgba(11, 18, 32, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .navbar .brand-text h1 { color: white; }
+  .navbar .brand-text p { color: rgba(255,255,255,0.5); }
+  .navbar .nav-links a { color: rgba(255,255,255,0.65); }
+  .navbar .nav-links a:hover,
+  .navbar .nav-links a.active { color: #93C5FD; }
+
+  .ambient-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 620px;
+    background:
+      radial-gradient(ellipse 640px 380px at 20% 0%, rgba(37,99,235,0.22), transparent 60%),
+      radial-gradient(ellipse 420px 320px at 95% 15%, rgba(245,158,11,0.13), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; }
+
+  .back-link { color: rgba(255,255,255,0.55); }
+  .back-link:hover { color: #93C5FD; }
+
   .page-header {
-    margin-bottom: 40px;
+    margin-bottom: 36px;
+    max-width: 620px;
+  }
+
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #FCD34D;
+    margin-bottom: 10px;
   }
 
   .page-header h2 {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-primary);
+    font-size: 30px;
+    font-weight: 800;
+    color: white;
     letter-spacing: -0.02em;
     margin-bottom: 8px;
   }
 
   .page-header p {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: rgba(255,255,255,0.55);
   }
 
-  .upload-panel {
-    max-width: 640px;
-    margin: 0 auto;
+  .upload-layout {
+    display: grid;
+    grid-template-columns: 1.3fr 0.9fr;
+    gap: 32px;
+    align-items: start;
+    max-width: 980px;
   }
+
+  .upload-panel { }
 
   .upload-zone {
     display: flex;
@@ -36,10 +85,11 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    background: var(--surface);
-    border: 2px dashed var(--border);
-    border-radius: 16px;
-    padding: 56px 32px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 2px dashed rgba(255,255,255,0.18);
+    border-radius: 18px;
+    padding: 52px 28px;
     text-align: center;
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease;
@@ -48,123 +98,114 @@
 
   .upload-zone:hover,
   .upload-zone.dragover {
-    border-color: var(--primary);
-    background: var(--primary-light);
+    border-color: #60A5FA;
+    background: rgba(37,99,235,0.08);
   }
 
-  .upload-zone input[type="file"] {
-    display: none;
-  }
+  .upload-zone input[type="file"] { display: none; }
 
   .upload-icon-badge {
-    width: 56px;
-    height: 56px;
-    background: var(--primary-light);
+    width: 54px; height: 54px;
+    background: rgba(37,99,235,0.18);
+    box-shadow: inset 0 0 0 1px rgba(96,165,250,0.3);
     border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     margin-bottom: 20px;
     flex-shrink: 0;
   }
 
-  .upload-icon-badge svg {
-    width: 28px;
-    height: 28px;
-    stroke: var(--primary);
-  }
+  .upload-icon-badge svg { width: 26px; height: 26px; stroke: #93C5FD; }
 
-  .upload-zone h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-  }
-
-  .upload-zone p {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
+  .upload-zone h3 { font-size: 16px; font-weight: 600; color: white; margin-bottom: 6px; }
+  .upload-zone p { font-size: 13px; color: rgba(255,255,255,0.45); }
 
   .file-preview {
     display: none;
     align-items: center;
     gap: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     padding: 14px 18px;
     margin-top: 16px;
   }
 
-  .file-preview.visible {
-    display: flex;
-  }
+  .file-preview.visible { display: flex; }
 
   .file-preview-icon {
-    width: 36px;
-    height: 36px;
-    background: var(--primary-light);
+    width: 36px; height: 36px;
+    background: rgba(37,99,235,0.18);
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
 
-  .file-preview-icon svg {
-    width: 18px;
-    height: 18px;
-    stroke: var(--primary);
-  }
+  .file-preview-icon svg { width: 18px; height: 18px; stroke: #93C5FD; }
 
-  .file-preview-info {
-    flex-grow: 1;
-    min-width: 0;
-  }
-
-  .file-preview-name {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .file-preview-size {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
+  .file-preview-info { flex-grow: 1; min-width: 0; }
+  .file-preview-name { font-size: 13.5px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-preview-size { font-size: 12px; color: rgba(255,255,255,0.45); }
 
   .file-preview-remove {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
-    padding: 4px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer; font-size: 18px; line-height: 1; padding: 4px;
+  }
+  .file-preview-remove:hover { color: #F87171; }
+
+  .action-row { margin-top: 24px; }
+
+  .format-note { font-size: 12.5px; color: rgba(255,255,255,0.4); margin-top: 14px; }
+
+  /* Right column: info card */
+  .info-card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 26px;
   }
 
-  .file-preview-remove:hover {
-    color: #DC2626;
+  .info-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 16px;
   }
 
-  .action-row {
-    margin-top: 28px;
-    text-align: center;
+  .info-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
   }
 
-  .format-note {
-    text-align: center;
-    font-size: 12.5px;
-    color: var(--text-muted);
-    margin-top: 14px;
+  .info-step:last-child { margin-bottom: 0; }
+
+  .info-step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(96,165,250,0.15);
+    border: 1px solid rgba(96,165,250,0.4);
+    color: #93C5FD;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .info-step p { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+  .disclaimer { color: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.08); margin-top: 36px; }
+
+  @media (max-width: 800px) {
+    .upload-layout { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
+
+  <div class="ambient-glow"></div>
 
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -180,9 +221,8 @@
     </a>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="about.html">About Us</a>
+      <a href="about.html">About</a>
       <a href="support.html">Support</a>
-      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
     </div>
   </nav>
 
@@ -190,41 +230,60 @@
     <a href="index.html" class="back-link">← Back</a>
 
     <div class="page-header">
+      <div class="page-eyebrow" id="pageEyebrow">Chest X-Ray</div>
       <h2 id="pageTitle">Chest X-Ray Analysis</h2>
       <p id="pageSubtitle">Upload a chest X-ray image to begin screening.</p>
     </div>
 
-    <div class="upload-panel">
-      <label class="upload-zone" id="uploadZone">
-        <input type="file" id="fileInput" accept="image/*">
-        <div class="upload-icon-badge">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 16V4M12 4l-4 4M12 4l4 4"/>
-            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
-          </svg>
-        </div>
-        <h3>Drop your file here, or click to browse</h3>
-        <p id="formatHint">Supports JPG, PNG (max 10MB)</p>
-      </label>
+    <div class="upload-layout">
+      <div class="upload-panel">
+        <label class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept="image/*">
+          <div class="upload-icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4M12 4l-4 4M12 4l4 4"/>
+              <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+            </svg>
+          </div>
+          <h3>Drop your file here, or click to browse</h3>
+          <p id="formatHint">Supports JPG, PNG (max 10MB)</p>
+        </label>
 
-      <div class="file-preview" id="filePreview">
-        <div class="file-preview-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <path d="M14 2v6h6"/>
-          </svg>
+        <div class="file-preview" id="filePreview">
+          <div class="file-preview-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6"/>
+            </svg>
+          </div>
+          <div class="file-preview-info">
+            <div class="file-preview-name" id="fileName">—</div>
+            <div class="file-preview-size" id="fileSize">—</div>
+          </div>
+          <button class="file-preview-remove" id="removeFile" title="Remove file">✕</button>
         </div>
-        <div class="file-preview-info">
-          <div class="file-preview-name" id="fileName">—</div>
-          <div class="file-preview-size" id="fileSize">—</div>
+
+        <div class="action-row">
+          <button class="btn btn-primary" id="analyzeBtn" disabled>Analyze →</button>
         </div>
-        <button class="file-preview-remove" id="removeFile" title="Remove file">✕</button>
+        <p class="format-note">Your file is analyzed securely and is not stored after screening.</p>
       </div>
 
-      <div class="action-row">
-        <button class="btn btn-primary" id="analyzeBtn" disabled>Analyze →</button>
+      <div class="info-card">
+        <h4>What happens next</h4>
+        <div class="info-step">
+          <div class="info-step-num">1</div>
+          <p>Your file is sent to the screening model for this scan type.</p>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">2</div>
+          <p>You'll get a prediction with a confidence score in seconds.</p>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">3</div>
+          <p>A visual explanation shows what the model focused on.</p>
+        </div>
       </div>
-      <p class="format-note">Your file is analyzed securely and is not stored after screening.</p>
     </div>
 
     <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
@@ -237,12 +296,14 @@
 
     const config = {
       xray: {
+        eyebrow: 'Chest X-Ray',
         title: 'Chest X-Ray Analysis',
         subtitle: 'Upload a chest X-ray image to begin screening.',
         hint: 'Supports JPG, PNG (max 10MB)',
         accept: 'image/*'
       },
       ct: {
+        eyebrow: 'CT Scan',
         title: 'CT Scan Analysis',
         subtitle: 'Upload a CT scan image to begin screening.',
         hint: 'Supports JPG, PNG, DICOM (max 25MB)',
@@ -251,6 +312,7 @@
     };
 
     const current = config[type] || config.xray;
+    document.getElementById('pageEyebrow').textContent = current.eyebrow;
     document.getElementById('pageTitle').textContent = current.title;
     document.getElementById('pageSubtitle').textContent = current.subtitle;
     document.getElementById('formatHint').textContent = current.hint;
@@ -307,78 +369,43 @@
       analyzeBtn.disabled = true;
     });
 
+    // ⚠️ SET THIS to wherever Anirudh's backend is actually running.
+    const CT_API_BASE_URL = 'http://172.18.237.137:8000';
+
     analyzeBtn.addEventListener('click', async () => {
+      if (!fileInput.files.length) return;
 
-  if (!fileInput.files.length) return;
+      if (type === 'ct') {
+        analyzeBtn.disabled = true;
+        analyzeBtn.textContent = 'Analyzing...';
 
-  const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
 
-  analyzeBtn.disabled = true;
-  analyzeBtn.textContent = 'Analyzing...';
+        try {
+          const response = await fetch(`${CT_API_BASE_URL}/predict/ct`, {
+            method: 'POST',
+            body: formData
+          });
 
-  const formData = new FormData();
-  formData.append('file', file);
+          if (!response.ok) {
+            throw new Error(`Server responded with status ${response.status}`);
+          }
 
-  try {
-
-    let apiUrl;
-    let resultPage;
-
-    if (type === 'ct') {
-
-      apiUrl = 'http://127.0.0.1:8000/predict/ct';
-      resultPage = 'result.html?type=ct';
-
-    } else {
-
-      apiUrl = 'https://retrain-scapegoat-remindful.ngrok-free.dev/predict/xray';
-      resultPage = 'result.html?type=xray';
-
-    }
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      body: formData
+          const data = await response.json();
+          localStorage.setItem('medilens_ct_result', JSON.stringify(data));
+          window.location.href = 'result.html?type=ct';
+        } catch (err) {
+          console.error('CT prediction failed:', err);
+          analyzeBtn.disabled = false;
+          analyzeBtn.textContent = 'Analyze →';
+          alert('Could not reach the CT analysis server. Check that the backend is running and reachable, then try again.');
+        }
+      } else {
+        // X-ray backend isn't connected yet — keep existing demo flow
+        window.location.href = `result.html?type=${type}`;
+      }
     });
-
-    if (!response.ok) {
-      throw new Error('Analysis failed');
-    }
-
-    const result = await response.json();
-
-    if (type === 'ct') {
-
-      localStorage.setItem(
-        'medilens_ct_result',
-        JSON.stringify(result)
-      );
-
-    } else {
-
-      localStorage.setItem(
-        'xrayResult',
-        JSON.stringify(result)
-      );
-
-    }
-
-    window.location.href = resultPage;
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      'Unable to connect to the AI backend. Please make sure the backend is running.'
-    );
-
-    analyzeBtn.disabled = false;
-    analyzeBtn.textContent = 'Analyze →';
-
-  }
-
-});
   </script>
 
 </body>

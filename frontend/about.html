@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — MediLens AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body {
+    background: #0B1220;
+    color: white;
+    overflow-x: hidden;
+  }
+
+  .navbar {
+    background: rgba(11, 18, 32, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .navbar .brand-text h1 { color: white; }
+  .navbar .brand-text p { color: rgba(255,255,255,0.5); }
+  .navbar .nav-links a { color: rgba(255,255,255,0.65); }
+  .navbar .nav-links a:hover,
+  .navbar .nav-links a.active { color: #60A5FA; }
+
+  .ambient-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 560px;
+    background:
+      radial-gradient(ellipse 600px 360px at 50% 0%, rgba(37,99,235,0.18), transparent 60%),
+      radial-gradient(ellipse 460px 320px at 90% 30%, rgba(245,158,11,0.12), transparent 60%),
+      radial-gradient(ellipse 460px 320px at 10% 30%, rgba(74,222,128,0.1), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { position: relative; z-index: 1; max-width: 880px; }
+  .back-link { color: rgba(255,255,255,0.55); }
+  .back-link:hover { color: #93C5FD; }
+
+  .page-header { margin-bottom: 40px; }
+
+  .page-eyebrow {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #60A5FA; margin-bottom: 10px;
+  }
+
+  .page-header h2 {
+    font-size: 34px; font-weight: 800; color: white; letter-spacing: -0.02em; margin-bottom: 12px;
+  }
+  .page-header h2 em {
+    font-style: normal;
+    background: linear-gradient(90deg, #60A5FA, #F59E0B, #4ADE80);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .page-header p { font-size: 15px; color: rgba(255,255,255,0.6); line-height: 1.6; max-width: 640px; }
+
+  .about-section { margin-bottom: 44px; }
+
+  .section-label {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: rgba(255,255,255,0.4); margin-bottom: 14px;
+  }
+
+  .concept-card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 28px;
+  }
+
+  .concept-card p {
+    font-size: 14.5px; line-height: 1.75; color: rgba(255,255,255,0.72);
+  }
+  .concept-card p + p { margin-top: 14px; }
+  .concept-card strong { color: white; font-weight: 700; }
+
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+
+  .pillar {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .pillar-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+  }
+  .pillar-icon svg { width: 17px; height: 17px; }
+  .pillar.xray .pillar-icon { background: rgba(37,99,235,0.18); }
+  .pillar.xray .pillar-icon svg { stroke: #93C5FD; }
+  .pillar.ecg .pillar-icon { background: rgba(245,158,11,0.18); }
+  .pillar.ecg .pillar-icon svg { stroke: #FCD34D; }
+  .pillar.ct .pillar-icon { background: rgba(124,58,237,0.2); }
+  .pillar.ct .pillar-icon svg { stroke: #C4B5FD; }
+  .pillar-title { font-size: 13.5px; font-weight: 700; color: white; margin-bottom: 4px; }
+  .pillar-desc { font-size: 12.5px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  .note-box {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 18px;
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+  }
+  .note-box strong { color: #FCD34D; }
+
+  .paper-group { margin-bottom: 26px; }
+  .paper-group-title {
+    font-size: 14px; font-weight: 700; color: white; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .paper-group-title .tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 3px 9px; border-radius: 20px;
+    background: rgba(74,222,128,0.14); color: #4ADE80; border: 1px solid rgba(74,222,128,0.3);
+  }
+
+  .paper-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .paper-item {
+    display: block;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .paper-item:hover {
+    border-color: rgba(96,165,250,0.4);
+    background: rgba(255,255,255,0.055);
+  }
+
+  .paper-title { font-size: 13.5px; font-weight: 600; color: #E2E8F0; margin-bottom: 4px; }
+  .paper-meta { font-size: 11.5px; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+  .paper-relevance { font-size: 12.5px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+
+  .disclaimer { color: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.08); margin-top: 36px; }
+
+  @media (max-width: 700px) {
+    .pillar-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12h4l2-8 4 16 2-8h4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>MediLens AI</h1>
+        <p>Multimodal Medical Screening System</p>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html" class="active">About</a>
+      <a href="support.html">Support</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <div class="page-header">
+      <div class="page-eyebrow">About the Project</div>
+      <h2>One interface, <em>three ways</em> to look closer.</h2>
+      <p>MediLens AI brings chest X-ray, CT, and ECG screening into a single workflow — built to explore whether a shared, explainable interface can make early multimodal screening more accessible, not to replace clinical diagnosis.</p>
+    </div>
+
+    <div class="about-section">
+      <div class="section-label">The Concept</div>
+      <div class="concept-card">
+        <p>Most screening tools are built around a single modality — one model, one scan type, one narrow use case. In practice, a clinician (or a patient trying to make sense of their own results) often has more than one type of scan to think about at once. MediLens AI's core idea is simple: <strong>bring chest X-ray, CT, and ECG analysis into one interface</strong>, so a person can upload what they have, see a per-scan result with a plain-language explanation of what drove it, and then see a combined picture across everything they've uploaded.</p>
+        <p>Each modality runs its own dedicated model — a chest X-ray classifier, a CT-based COVID/non-COVID classifier, and an ECG arrhythmia classifier trained on signal-derived features. Results are shown with their confidence score and, where available, the specific signals the model weighted most heavily, rather than a single opaque "risk number."</p>
+        <p>MediLens AI is explicitly a <strong>screening-support tool, not a diagnostic device</strong>. Confidence scores reflect how strongly a model's output matches patterns it was trained on for that modality — they are not a calibrated probability of disease, and none of the current models adjust for patient-specific factors like age, height, or weight. That's a known limitation, and one of the open directions for the project.</p>
+      </div>
+
+      <div class="pillar-grid">
+        <div class="pillar xray">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M6 8h12M6 16h12"/></svg>
+          </div>
+          <div class="pillar-title">Chest X-Ray</div>
+          <div class="pillar-desc">Image-based classification, flagging visual patterns worth a closer look.</div>
+        </div>
+        <div class="pillar ecg">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/></svg>
+          </div>
+          <div class="pillar-title">ECG Signal</div>
+          <div class="pillar-desc">Rhythm classification from signal-derived features like HRV, RMSSD, and R-R intervals.</div>
+        </div>
+        <div class="pillar ct">
+          <div class="pillar-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
+          </div>
+          <div class="pillar-title">CT Scan</div>
+          <div class="pillar-desc">Transfer-learned image classifier trained to distinguish COVID from non-COVID scans.</div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>Why this matters:</strong> individually, X-ray, CT, and ECG classifiers already exist as research projects. What's less explored is combining them into one explainable, multimodal interface aimed at early screening rather than final diagnosis — the gap this project sits in.
+      </div>
+    </div>
+
+    <div class="about-section">
+      <div class="section-label">Research This Builds On</div>
+
+      <div class="paper-group">
+        <div class="paper-group-title">Most directly related <span class="tag">Closest analog</span></div>
+        <div class="paper-list">
+          <a class="paper-item" href="https://www.mdpi.com/2075-4418/13/9/1621" target="_blank" rel="noopener">
+            <div class="paper-title">A CNN-FCN-LSTM Multimodal Framework for Automatic Disease Diagnosis</div>
+            <div class="paper-meta">Diagnostics (MDPI), 2023</div>
+            <div class="paper-relevance">The closest existing analog to MediLens — combines CNN (image), FCN, and LSTM (signal) branches into one multimodal diagnostic pipeline, mirroring our per-modality-model + combined-output approach.</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="paper-group">
+        <div class="paper-group-title">Multimodal fusion</div>
+        <div class="paper-list">
+          <a class="paper-item" href="https://www.nature.com/articles/s41746-020-00341-z" target="_blank" rel="noopener">
+            <div class="paper-title">Multimodal fusion of imaging and genomics for cancer diagnosis</div>
+            <div class="paper-meta">npj Digital Medicine, 2022</div>
+            <div class="paper-relevance">Establishes the case for fusing separate modality-specific models rather than training one model on everything — the same architectural choice MediLens makes.</div>
+          </a>
+          <a class="paper-item" href="https://arxiv.org/abs/2103.06255" target="_blank" rel="noopener">
+            <div class="paper-title">A Review on Multimodal Medical Image Fusion</div>
+            <div class="paper-meta">arXiv, 2021</div>
+            <div class="paper-relevance">Surveys fusion strategies (early/late/hybrid) — relevant background for how MediLens's combined risk summary could evolve beyond simple score averaging.</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="paper-group">
+        <div class="paper-group-title">Explainability (Grad-CAM)</div>
+        <div class="paper-list">
+          <a class="paper-item" href="https://arxiv.org/abs/1610.02391" target="_blank" rel="noopener">
+            <div class="paper-title">Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization</div>
+            <div class="paper-meta">Selvaraju et al., ICCV 2017</div>
+            <div class="paper-relevance">The foundational technique behind the "what the model looked at" heatmap concept planned for MediLens's X-ray and CT results.</div>
+          </a>
+          <a class="paper-item" href="https://www.nature.com/articles/s41746-021-00464-x" target="_blank" rel="noopener">
+            <div class="paper-title">Explainable AI for medical imaging: a survey</div>
+            <div class="paper-meta">npj Digital Medicine, 2021</div>
+            <div class="paper-relevance">Grounds why explainability (not just a confidence score) matters for clinical trust — the motivation behind showing contributing factors, not just a percentage.</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="paper-group">
+        <div class="paper-group-title">ECG-specific</div>
+        <div class="paper-list">
+          <a class="paper-item" href="https://www.nature.com/articles/s41591-018-0268-3" target="_blank" rel="noopener">
+            <div class="paper-title">Cardiologist-level arrhythmia detection with deep neural networks</div>
+            <div class="paper-meta">Hannun et al., Nature Medicine, 2019</div>
+            <div class="paper-relevance">Benchmark work on classifying arrhythmias (AFL, RBBB, NSR, etc.) from single-lead ECG — directly relevant to Nidhi's classification approach.</div>
+          </a>
+          <a class="paper-item" href="https://www.frontiersin.org/articles/10.3389/fphys.2021.598734/full" target="_blank" rel="noopener">
+            <div class="paper-title">Heart Rate Variability as a Biomarker in Health and Disease</div>
+            <div class="paper-meta">Frontiers in Physiology, 2021</div>
+            <div class="paper-relevance">Background on HRV metrics (RMSSD, SDNN, LF/HF ratio) shown as contributing factors in MediLens's ECG results.</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="paper-group">
+        <div class="paper-group-title">CT-specific</div>
+        <div class="paper-list">
+          <a class="paper-item" href="https://www.nature.com/articles/s41598-020-76550-z" target="_blank" rel="noopener">
+            <div class="paper-title">Automated detection of COVID-19 cases using deep neural networks with X-ray/CT images</div>
+            <div class="paper-meta">Scientific Reports, 2020</div>
+            <div class="paper-relevance">Direct precedent for transfer-learning a CNN (ResNet-family) for COVID vs. non-COVID classification, the approach used in MediLens's CT model.</div>
+          </a>
+          <a class="paper-item" href="https://ieeexplore.ieee.org/document/9098860" target="_blank" rel="noopener">
+            <div class="paper-title">Deep Learning-Based Detection for COVID-19 from Chest CT using Transfer Learning</div>
+            <div class="paper-meta">IEEE Access, 2020</div>
+            <div class="paper-relevance">Compares transfer-learning backbones (including ResNet18) for CT-based COVID classification with small training sets, similar in scale to our ~2,481-image dataset.</div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
+  </div>
+
+</body>
+</html>

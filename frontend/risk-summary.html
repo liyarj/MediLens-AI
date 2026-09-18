@@ -5,204 +5,150 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Combined Risk Summary — MediLens AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .page-header {
-    margin-bottom: 40px;
-    text-align: center;
+  body {
+    background: #0B1220;
+    color: white;
+    overflow-x: hidden;
   }
 
-  .page-header h2 {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-    margin-bottom: 8px;
+  .navbar {
+    background: rgba(11, 18, 32, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
-  .page-header p {
-    font-size: 14px;
-    color: var(--text-secondary);
+  .navbar .brand-text h1 { color: white; }
+  .navbar .brand-text p { color: rgba(255,255,255,0.5); }
+  .navbar .nav-links a { color: rgba(255,255,255,0.65); }
+  .navbar .nav-links a:hover,
+  .navbar .nav-links a.active { color: #4ADE80; }
+
+  .ambient-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 560px;
+    background:
+      radial-gradient(ellipse 600px 360px at 50% 0%, rgba(37,99,235,0.18), transparent 60%),
+      radial-gradient(ellipse 460px 320px at 90% 30%, rgba(245,158,11,0.12), transparent 60%),
+      radial-gradient(ellipse 460px 320px at 10% 30%, rgba(74,222,128,0.1), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .summary-panel {
-    max-width: 720px;
-    margin: 0 auto;
+  .container { position: relative; z-index: 1; }
+  .back-link { color: rgba(255,255,255,0.55); }
+  .back-link:hover { color: #93C5FD; }
+
+  .page-header { margin-bottom: 32px; }
+
+  .page-eyebrow {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #4ADE80; margin-bottom: 10px;
+  }
+
+  .page-header h2 { font-size: 30px; font-weight: 800; color: white; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .page-header p { font-size: 14px; color: rgba(255,255,255,0.55); }
+
+  .summary-layout {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 28px;
+    align-items: start;
+    max-width: 1000px;
   }
 
   /* Gauge card */
   .gauge-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px 32px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 36px 28px;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-    margin-bottom: 28px;
   }
 
-  .gauge-wrap {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    margin: 0 auto 20px;
-  }
-
-  .gauge-wrap svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  .gauge-track {
-    fill: none;
-    stroke: var(--border);
-    stroke-width: 14;
-  }
+  .gauge-wrap { position: relative; width: 168px; height: 168px; margin: 0 auto 20px; }
+  .gauge-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .gauge-track { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 13; }
 
   .gauge-fill {
     fill: none;
-    stroke: #DC2626;
-    stroke-width: 14;
+    stroke: url(#gaugeGradient);
+    stroke-width: 13;
     stroke-linecap: round;
     stroke-dasharray: 452;
     stroke-dashoffset: 116;
-    transition: stroke-dashoffset 0.6s ease;
   }
 
-  .gauge-value {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .gauge-value .score {
-    font-size: 40px;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1;
-  }
-
-  .gauge-value .score span {
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--text-muted);
-  }
-
+  .gauge-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+  .gauge-value .score { font-size: 38px; font-weight: 800; color: white; line-height: 1; }
+  .gauge-value .score span { font-size: 17px; font-weight: 500; color: rgba(255,255,255,0.4); }
   .gauge-value .label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #DC2626;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-top: 4px;
+    font-size: 12px; font-weight: 700; color: #F87171;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px;
   }
 
-  .gauge-summary {
-    font-size: 15px;
-    color: var(--text-secondary);
-    max-width: 420px;
-    margin: 0 auto;
-    line-height: 1.5;
-  }
+  .gauge-summary { font-size: 14.5px; color: rgba(255,255,255,0.55); line-height: 1.55; }
 
   /* Breakdown list */
-  .breakdown-heading {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 14px;
-  }
-
-  .breakdown-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
+  .breakdown-heading { font-size: 16px; font-weight: 700; color: white; margin-bottom: 14px; }
+  .breakdown-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; }
 
   .breakdown-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
     padding: 16px 18px;
+    transition: border-color 0.15s ease;
   }
+
+  .breakdown-item:hover { border-color: rgba(255,255,255,0.22); }
 
   .breakdown-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    width: 42px; height: 42px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
+  .breakdown-icon svg { width: 20px; height: 20px; }
 
-  .breakdown-icon svg {
-    width: 20px;
-    height: 20px;
-  }
+  .breakdown-item.xray .breakdown-icon { background: rgba(37,99,235,0.18); }
+  .breakdown-item.xray .breakdown-icon svg { stroke: #93C5FD; }
 
-  .breakdown-item.xray .breakdown-icon { background: #DBEAFE; }
-  .breakdown-item.xray .breakdown-icon svg { stroke: #2563EB; }
+  .breakdown-item.ecg .breakdown-icon { background: rgba(245,158,11,0.18); }
+  .breakdown-item.ecg .breakdown-icon svg { stroke: #FCD34D; }
 
-  .breakdown-item.ecg .breakdown-icon { background: #FEF3C7; }
-  .breakdown-item.ecg .breakdown-icon svg { stroke: #F59E0B; }
+  .breakdown-item.ct .breakdown-icon { background: rgba(124,58,237,0.2); }
+  .breakdown-item.ct .breakdown-icon svg { stroke: #C4B5FD; }
 
-  .breakdown-item.ct .breakdown-icon { background: #EDE9FE; }
-  .breakdown-item.ct .breakdown-icon svg { stroke: #7C3AED; }
-
-  .breakdown-info {
-    flex-grow: 1;
-    min-width: 0;
-  }
-
-  .breakdown-title {
-    font-size: 14.5px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .breakdown-sub {
-    font-size: 12.5px;
-    color: var(--text-muted);
-  }
+  .breakdown-info { flex-grow: 1; min-width: 0; }
+  .breakdown-title { font-size: 14.5px; font-weight: 700; color: white; }
+  .breakdown-sub { font-size: 12.5px; color: rgba(255,255,255,0.45); }
 
   .status-tag {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 5px 12px;
-    border-radius: 20px;
-    white-space: nowrap;
-    flex-shrink: 0;
+    font-size: 11.5px; font-weight: 700;
+    padding: 5px 12px; border-radius: 20px;
+    white-space: nowrap; flex-shrink: 0;
+    border: 1px solid transparent;
   }
 
-  .status-tag.abnormal {
-    background: #FEE2E2;
-    color: #DC2626;
-  }
+  .status-tag.abnormal { background: rgba(248,113,113,0.14); color: #F87171; border-color: rgba(248,113,113,0.3); }
+  .status-tag.normal { background: rgba(74,222,128,0.14); color: #4ADE80; border-color: rgba(74,222,128,0.3); }
+  .status-tag.pending { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); border-color: rgba(255,255,255,0.12); }
 
-  .status-tag.normal {
-    background: #DCFCE7;
-    color: #16A34A;
-  }
+  .disclaimer { color: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.08); margin-top: 36px; }
 
-  .status-tag.pending {
-    background: #F1F5F9;
-    color: var(--text-muted);
-  }
-
-  .action-row {
-    text-align: center;
+  @media (max-width: 800px) {
+    .summary-layout { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
+
+  <div class="ambient-glow"></div>
 
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -218,9 +164,8 @@
     </a>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="about.html">About Us</a>
+      <a href="about.html">About</a>
       <a href="support.html">Support</a>
-      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
     </div>
   </nav>
 
@@ -228,14 +173,21 @@
     <a href="index.html" class="back-link">← Back</a>
 
     <div class="page-header">
+      <div class="page-eyebrow">Combined View</div>
       <h2>Combined Risk Summary</h2>
       <p>An overall picture based on every scan you've analyzed so far.</p>
     </div>
 
-    <div class="summary-panel">
+    <div class="summary-layout">
       <div class="gauge-card">
         <div class="gauge-wrap">
           <svg viewBox="0 0 160 160">
+            <defs>
+              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#F87171"/>
+                <stop offset="100%" stop-color="#F59E0B"/>
+              </linearGradient>
+            </defs>
             <circle class="gauge-track" cx="80" cy="80" r="72"/>
             <circle class="gauge-fill" cx="80" cy="80" r="72"/>
           </svg>
@@ -247,50 +199,50 @@
         <p class="gauge-summary">2 out of 3 analyzed scans show signs worth a closer look. We recommend sharing this report with a medical professional.</p>
       </div>
 
-      <h3 class="breakdown-heading">What We Looked At</h3>
-      <div class="breakdown-list">
-        <div class="breakdown-item xray">
-          <div class="breakdown-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
-            </svg>
+      <div>
+        <h3 class="breakdown-heading">What We Looked At</h3>
+        <div class="breakdown-list">
+          <div class="breakdown-item xray">
+            <div class="breakdown-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
+              </svg>
+            </div>
+            <div class="breakdown-info">
+              <div class="breakdown-title">Chest X-Ray</div>
+              <div class="breakdown-sub">94.2% confidence</div>
+            </div>
+            <span class="status-tag abnormal">Abnormal</span>
           </div>
-          <div class="breakdown-info">
-            <div class="breakdown-title">Chest X-Ray</div>
-            <div class="breakdown-sub">94.2% confidence</div>
+
+          <div class="breakdown-item ecg">
+            <div class="breakdown-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
+              </svg>
+            </div>
+            <div class="breakdown-info">
+              <div class="breakdown-title">ECG Signal</div>
+              <div class="breakdown-sub">91.7% confidence</div>
+            </div>
+            <span class="status-tag abnormal">Abnormal</span>
           </div>
-          <span class="status-tag abnormal">Abnormal</span>
+
+          <div class="breakdown-item ct">
+            <div class="breakdown-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 3v18M3 12h18"/>
+              </svg>
+            </div>
+            <div class="breakdown-info">
+              <div class="breakdown-title">CT Scan</div>
+              <div class="breakdown-sub">Not yet analyzed</div>
+            </div>
+            <span class="status-tag pending">Pending</span>
+          </div>
         </div>
 
-        <div class="breakdown-item ecg">
-          <div class="breakdown-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
-            </svg>
-          </div>
-          <div class="breakdown-info">
-            <div class="breakdown-title">ECG Signal</div>
-            <div class="breakdown-sub">91.7% confidence</div>
-          </div>
-          <span class="status-tag abnormal">Abnormal</span>
-        </div>
-
-        <div class="breakdown-item ct">
-          <div class="breakdown-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="9"/>
-              <path d="M12 3v18M3 12h18"/>
-            </svg>
-          </div>
-          <div class="breakdown-info">
-            <div class="breakdown-title">CT Scan</div>
-            <div class="breakdown-sub">Not yet analyzed</div>
-          </div>
-          <span class="status-tag pending">Pending</span>
-        </div>
-      </div>
-
-      <div class="action-row">
         <a href="index.html" class="btn btn-primary">Analyze Another Scan</a>
       </div>
     </div>

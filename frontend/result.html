@@ -5,189 +5,144 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Results — MediLens AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  .page-header {
-    margin-bottom: 32px;
+  body {
+    background: #0B1220;
+    color: white;
+    overflow-x: hidden;
   }
 
-  .page-header h2 {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
+  .navbar {
+    background: rgba(11, 18, 32, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
-  .page-header p {
-    font-size: 14px;
-    color: var(--text-secondary);
+  .navbar .brand-text h1 { color: white; }
+  .navbar .brand-text p { color: rgba(255,255,255,0.5); }
+  .navbar .nav-links a { color: rgba(255,255,255,0.65); }
+  .navbar .nav-links a:hover,
+  .navbar .nav-links a.active { color: #93C5FD; }
+
+  .ambient-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 560px;
+    background:
+      radial-gradient(ellipse 600px 360px at 85% 0%, rgba(37,99,235,0.2), transparent 60%),
+      radial-gradient(ellipse 420px 300px at 10% 20%, rgba(74,222,128,0.1), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
   }
+
+  .container { position: relative; z-index: 1; }
+  .back-link { color: rgba(255,255,255,0.55); }
+  .back-link:hover { color: #93C5FD; }
+
+  .page-header { margin-bottom: 28px; }
+
+  .page-eyebrow {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #4ADE80; margin-bottom: 10px;
+  }
+
+  .page-header h2 { font-size: 30px; font-weight: 800; color: white; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .page-header p { font-size: 14px; color: rgba(255,255,255,0.55); }
 
   .result-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    gap: 32px;
     align-items: start;
   }
 
-  /* Left column: scan */
-  .scan-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 10px;
-  }
+  .scan-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
 
   .scan-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    height: 420px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    height: 400px;
+    display: flex; align-items: center; justify-content: center;
     overflow: hidden;
   }
 
-  .scan-box .placeholder-text {
-    color: var(--text-muted);
-    font-size: 13px;
-  }
+  .scan-box .placeholder-text { color: rgba(255,255,255,0.35); font-size: 13px; }
+  .waveform-svg { width: 90%; height: 120px; }
 
-  /* Waveform placeholder for ECG */
-  .waveform-svg {
-    width: 90%;
-    height: 120px;
-  }
-
-  /* Right column */
   .prediction-pill {
     display: inline-block;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13px; font-weight: 600;
     padding: 7px 16px;
     border-radius: 20px;
     margin-bottom: 20px;
+    border: 1px solid transparent;
   }
 
-  .prediction-pill.abnormal {
-    background: #FEE2E2;
-    color: #DC2626;
-  }
+  .prediction-pill.abnormal { background: rgba(248,113,113,0.14); color: #F87171; border-color: rgba(248,113,113,0.3); }
+  .prediction-pill.normal { background: rgba(74,222,128,0.14); color: #4ADE80; border-color: rgba(74,222,128,0.3); }
 
-  .prediction-pill.normal {
-    background: #DCFCE7;
-    color: #16A34A;
-  }
-
-  .confidence-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-
-  .confidence-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 10px;
-  }
+  .confidence-label { font-size: 13px; color: rgba(255,255,255,0.5); font-weight: 500; margin-bottom: 4px; }
+  .confidence-value { font-size: 32px; font-weight: 800; color: white; margin-bottom: 10px; }
 
   .confidence-track {
-    width: 100%;
-    height: 8px;
-    background: var(--border);
+    width: 100%; height: 7px;
+    background: rgba(255,255,255,0.1);
     border-radius: 4px;
     overflow: hidden;
-    margin-bottom: 28px;
+    margin-bottom: 26px;
   }
 
-  .confidence-fill {
-    height: 100%;
-    border-radius: 4px;
-    background: #DC2626;
-  }
+  .confidence-fill { height: 100%; border-radius: 4px; background: #F87171; }
 
-  .section-heading {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-
-  .section-sub {
-    font-size: 12.5px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-  }
+  .section-heading { font-size: 15px; font-weight: 700; color: white; margin-bottom: 4px; }
+  .section-sub { font-size: 12.5px; color: rgba(255,255,255,0.45); margin-bottom: 12px; }
 
   .heatmap-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    height: 160px;
-    margin-bottom: 28px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    height: 150px;
+    margin-bottom: 26px;
     overflow: hidden;
     position: relative;
   }
 
   .heatmap-gradient {
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 40% 45%, rgba(220,38,38,0.55) 0%, rgba(245,158,11,0.35) 30%, rgba(37,99,235,0.12) 55%, transparent 75%);
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at 40% 45%, rgba(248,113,113,0.5) 0%, rgba(245,158,11,0.3) 30%, rgba(96,165,250,0.12) 55%, transparent 75%);
   }
 
-  .factors-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 32px;
-  }
+  .factors-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
 
-  .factor-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 14px;
-    color: #334155;
-  }
+  .factor-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: rgba(255,255,255,0.72); }
+  .factor-item svg { width: 16px; height: 16px; stroke: #4ADE80; flex-shrink: 0; margin-top: 2px; }
 
-  .factor-item svg {
-    width: 16px;
-    height: 16px;
-    stroke: #16A34A;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .action-row {
-    display: flex;
-    gap: 12px;
-  }
+  .action-row { display: flex; gap: 12px; }
 
   .btn-secondary {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: white;
     padding: 13px 24px;
   }
 
-  .btn-secondary:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-  }
+  .btn-secondary:hover { border-color: #93C5FD; color: #93C5FD; background: rgba(255,255,255,0.08); }
+
+  .disclaimer { color: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.08); margin-top: 36px; }
 
   @media (max-width: 800px) {
     .result-grid { grid-template-columns: 1fr; }
-    .scan-box { height: 300px; }
+    .scan-box { height: 280px; }
   }
 </style>
 </head>
 <body>
+
+  <div class="ambient-glow"></div>
 
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -203,9 +158,8 @@
     </a>
     <div class="nav-links">
       <a href="index.html">Home</a>
-      <a href="about.html">About Us</a>
+      <a href="about.html">About</a>
       <a href="support.html">Support</a>
-      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
     </div>
   </nav>
 
@@ -213,6 +167,7 @@
     <a href="#" class="back-link" id="backLink">← Back</a>
 
     <div class="page-header">
+      <div class="page-eyebrow">Screening Result</div>
       <h2 id="pageTitle">Chest X-Ray Results</h2>
       <p id="pageSubtitle">Here's what we found.</p>
     </div>
@@ -318,7 +273,93 @@
       }
     };
 
-    const current = config[type] || config.xray;
+    let current = config[type] || config.xray;
+    let ecgWaveform = null;
+
+    // If this is an ECG result and we have a REAL saved prediction from the backend, use it
+    if (type === 'ecg') {
+      const rawResult = localStorage.getItem('medilens_ecg_result');
+      if (rawResult) {
+        try {
+          const real = JSON.parse(rawResult);
+
+          if (Array.isArray(real.waveform) && real.waveform.length > 0) {
+            ecgWaveform = real.waveform;
+          }
+
+          const predictedClass = real.predicted_class || 'Unknown';
+          const isNormal = predictedClass.toLowerCase().includes('normal');
+          const confidence = typeof real.confidence_percentage === 'number'
+            ? real.confidence_percentage
+            : parseFloat(real.confidence_percentage) || 0;
+
+          // Per the confirmed API schema: real.explainability.top_contributing_features
+          // is an array of { feature_name, feature_value, description }
+          let factors = [];
+          const ex = real.explainability || {};
+
+          if (Array.isArray(ex.top_contributing_features)) {
+            factors = ex.top_contributing_features.map(f => f.description || f.feature_name || 'Contributing factor');
+          }
+
+          if (ex.estimated_heart_rate_bpm !== undefined && ex.estimated_heart_rate_bpm !== null) {
+            factors.push(`Estimated heart rate: ${ex.estimated_heart_rate_bpm} bpm`);
+          }
+          if (ex.hrv_metrics) {
+            const hrv = ex.hrv_metrics;
+            if (hrv.sdnn !== undefined) factors.push(`Heart rate variability (SDNN): ${hrv.sdnn}`);
+            if (hrv.rmssd !== undefined) factors.push(`RMSSD: ${hrv.rmssd}`);
+            if (hrv.lf_hf_ratio !== undefined) factors.push(`LF/HF ratio: ${hrv.lf_hf_ratio}`);
+          }
+
+          if (factors.length === 0) {
+            factors = ['Detailed signal breakdown not available for this recording.'];
+          }
+
+          current = {
+            title: 'ECG Signal Results',
+            scanLabel: 'Your Signal',
+            prediction: predictedClass,
+            status: isNormal ? 'normal' : 'abnormal',
+            confidence: confidence,
+            explainHeading: 'Signal characteristics',
+            explainSub: 'Key patterns identified from your ECG waveform.',
+            factors: factors,
+            backHref: 'upload-ecg.html'
+          };
+        } catch (e) {
+          console.warn('Could not parse saved ECG result, falling back to demo data.', e);
+        }
+      }
+    }
+
+    // If this is a CT result and we have a REAL saved prediction from Anirudh's backend, use it
+    if (type === 'ct') {
+      const rawCtResult = localStorage.getItem('medilens_ct_result');
+      if (rawCtResult) {
+        try {
+          const real = JSON.parse(rawCtResult);
+          const label = real.label || 'Unknown';
+          const isNormal = label.toLowerCase().includes('non-covid') || label.toLowerCase() === 'non covid';
+          const confidence = typeof real.confidence === 'number' ? real.confidence : parseFloat(real.confidence) || 0;
+
+          current = {
+            title: 'CT Scan Results',
+            scanLabel: 'Your Scan',
+            prediction: label === 'COVID' ? 'COVID-19 Indicators Detected' : label,
+            status: isNormal ? 'normal' : 'abnormal',
+            confidence: confidence,
+            explainHeading: 'About this result',
+            explainSub: 'This model classifies CT scans as COVID or non-COVID based on visual patterns learned during training.',
+            factors: ['Detailed visual explainability (e.g. heatmap) is not yet available for CT scans in this build.'],
+            backHref: 'upload.html?type=ct',
+            noHeatmap: true
+          };
+        } catch (e) {
+          console.warn('Could not parse saved CT result, falling back to demo data.', e);
+        }
+      }
+    }
 
     document.getElementById('pageTitle').textContent = current.title;
     document.getElementById('scanLabel').textContent = current.scanLabel;
@@ -331,7 +372,7 @@
     document.getElementById('confidenceValue').textContent = current.confidence + '%';
     const fill = document.getElementById('confidenceFill');
     fill.style.width = current.confidence + '%';
-    fill.style.background = current.status === 'abnormal' ? '#DC2626' : '#16A34A';
+    fill.style.background = current.status === 'abnormal' ? '#F87171' : '#4ADE80';
 
     document.getElementById('explainHeading').textContent = current.explainHeading;
     document.getElementById('explainSub').textContent = current.explainSub;
@@ -344,18 +385,52 @@
       </div>
     `).join('');
 
-    // For ECG, replace the scan image box with a waveform illustration
+    // If there's no real explainability data (e.g. CT model only returns label + confidence),
+    // show an honest placeholder instead of a fake heatmap
+    if (current.noHeatmap) {
+      document.getElementById('heatmapBox').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.35);font-size:13px;text-align:center;padding:0 20px;">Visual explainability coming soon</div>';
+    }
+
+    // For ECG: plot the REAL waveform from the backend if we have one, otherwise
+    // fall back to a static illustration (e.g. when viewing demo/fallback data)
     if (type === 'ecg') {
-      document.getElementById('scanBox').innerHTML = `
-        <svg class="waveform-svg" viewBox="0 0 400 100" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M0 50 L40 50 L50 20 L60 80 L70 50 L110 50 L120 30 L130 50 L170 50 L180 15 L190 85 L200 50 L240 50 L250 30 L260 50 L300 50 L310 20 L320 80 L330 50 L400 50"/>
-        </svg>
-      `;
+      if (ecgWaveform) {
+        const width = 600;
+        const height = 300;
+        const padding = 20;
+
+        const min = Math.min(...ecgWaveform);
+        const max = Math.max(...ecgWaveform);
+        const range = max - min || 1;
+
+        const points = ecgWaveform.map((value, index) => {
+          const x = padding + (index / (ecgWaveform.length - 1)) * (width - 2 * padding);
+          const y = padding + ((max - value) / range) * (height - 2 * padding);
+          return `${x},${y}`;
+        }).join(' ');
+
+        document.getElementById('scanBox').innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" preserveAspectRatio="none">
+            <polyline
+              points="${points}"
+              fill="none"
+              stroke="#93C5FD"
+              stroke-width="1.5"
+              vector-effect="non-scaling-stroke"/>
+          </svg>
+        `;
+      } else {
+        document.getElementById('scanBox').innerHTML = `
+          <svg class="waveform-svg" viewBox="0 0 400 100" fill="none" stroke="#93C5FD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M0 50 L40 50 L50 20 L60 80 L70 50 L110 50 L120 30 L130 50 L170 50 L180 15 L190 85 L200 50 L240 50 L250 30 L260 50 L300 50 L310 20 L320 80 L330 50 L400 50"/>
+          </svg>
+        `;
+      }
     }
 
     // Heatmap not applicable to ECG — swap for a plain note
     if (type === 'ecg') {
-      document.getElementById('heatmapBox').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:13px;">Signal-based analysis — no visual overlay</div>';
+      document.getElementById('heatmapBox').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:rgba(255,255,255,0.35);font-size:13px;">Signal-based analysis — no visual overlay</div>';
     }
   </script>
 
