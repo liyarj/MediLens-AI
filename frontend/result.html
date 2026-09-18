@@ -183,7 +183,7 @@
       <div>
         <span class="prediction-pill abnormal" id="predictionPill">Abnormality Detected</span>
 
-        <div class="confidence-label">Confidence</div>
+        <div class="confidence-label" id="confidenceLabel">Confidence</div>
         <div class="confidence-value" id="confidenceValue">94.2%</div>
         <div class="confidence-track">
           <div class="confidence-fill" id="confidenceFill" style="width: 94.2%;"></div>
@@ -333,6 +333,50 @@
       }
     }
 
+    // If this is an X-ray result and we have a REAL saved prediction from Liya's backend, use it.
+    // Her model is an ANOMALY DETECTOR, not a standard classifier: it measures how far a scan's
+    // learned features sit from a "normal" reference point, and compares that distance to a
+    // fixed threshold. There is no probability/confidence value — anomaly_score and threshold
+    // are the real signal, so we show those honestly instead of faking a percentage.
+    if (type === 'xray') {
+      const rawXrayResult = localStorage.getItem('medilens_xray_result');
+      if (rawXrayResult) {
+        try {
+          const real = JSON.parse(rawXrayResult);
+          const prediction = real.prediction || 'Unknown';
+          const isNormal = prediction === 'NORMAL_LIKE';
+          const score = typeof real.anomaly_score === 'number' ? real.anomaly_score : parseFloat(real.anomaly_score) || 0;
+          const threshold = typeof real.threshold === 'number' ? real.threshold : parseFloat(real.threshold) || 0;
+
+          // Express how far the score sits relative to the threshold, as a display percentage.
+          // 100% = right at the threshold; under 100% = inside the "normal" region; over 100% = flagged abnormal.
+          const ratioPct = threshold > 0 ? Math.round((score / threshold) * 100) : 0;
+
+          current = {
+            title: 'Chest X-Ray Results',
+            scanLabel: 'Your Scan',
+            prediction: isNormal ? 'No Significant Anomaly Detected' : 'Abnormal Pattern Detected',
+            status: isNormal ? 'normal' : 'abnormal',
+            confidence: Math.min(ratioPct, 999),
+            confidenceLabel: 'Deviation from normal (% of threshold)',
+            explainHeading: 'About this result',
+            explainSub: 'This model doesn’t classify by disease — it measures how far this scan’s visual features sit from a learned "normal" reference, then flags scans that stray past a fixed threshold.',
+            factors: [
+              `Anomaly score: ${score.toFixed(4)}`,
+              `Normal threshold: ${threshold.toFixed(4)}`,
+              isNormal
+                ? 'This scan’s features fall within the range typically seen in normal chest X-rays.'
+                : 'This scan’s features deviate from the typical normal range — worth a closer look by a professional.'
+            ],
+            backHref: 'upload.html?type=xray',
+            noHeatmap: true
+          };
+        } catch (e) {
+          console.warn('Could not parse saved X-ray result, falling back to demo data.', e);
+        }
+      }
+    }
+
     // If this is a CT result and we have a REAL saved prediction from Anirudh's backend, use it
     if (type === 'ct') {
       const rawCtResult = localStorage.getItem('medilens_ct_result');
@@ -369,9 +413,10 @@
     pill.textContent = current.prediction;
     pill.className = 'prediction-pill ' + current.status;
 
+    document.getElementById('confidenceLabel').textContent = current.confidenceLabel || 'Confidence';
     document.getElementById('confidenceValue').textContent = current.confidence + '%';
     const fill = document.getElementById('confidenceFill');
-    fill.style.width = current.confidence + '%';
+    fill.style.width = Math.min(current.confidence, 100) + '%';
     fill.style.background = current.status === 'abnormal' ? '#F87171' : '#4ADE80';
 
     document.getElementById('explainHeading').textContent = current.explainHeading;
