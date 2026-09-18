@@ -372,10 +372,16 @@
     // ⚠️ SET THIS to wherever Anirudh's backend is actually running.
     const CT_API_BASE_URL = 'http://172.18.237.137:8000';
 
+    // ⚠️ SET THIS to wherever Liya's X-ray backend is actually running.
+    const XRAY_API_URL = 'https://retrain-scapegoat-remindful.ngrok-free.dev/predict/xray';
+
     analyzeBtn.addEventListener('click', async () => {
       if (!fileInput.files.length) return;
 
-      if (type === 'ct') {
+      if (type === 'ct' || type === 'xray') {
+        const apiUrl = type === 'ct' ? `${CT_API_BASE_URL}/predict/ct` : XRAY_API_URL;
+        const storageKey = type === 'ct' ? 'medilens_ct_result' : 'medilens_xray_result';
+
         analyzeBtn.disabled = true;
         analyzeBtn.textContent = 'Analyzing...';
 
@@ -383,7 +389,7 @@
         formData.append('file', fileInput.files[0]);
 
         try {
-          const response = await fetch(`${CT_API_BASE_URL}/predict/ct`, {
+          const response = await fetch(apiUrl, {
             method: 'POST',
             body: formData
           });
@@ -393,16 +399,15 @@
           }
 
           const data = await response.json();
-          localStorage.setItem('medilens_ct_result', JSON.stringify(data));
-          window.location.href = 'result.html?type=ct';
+          localStorage.setItem(storageKey, JSON.stringify(data));
+          window.location.href = `result.html?type=${type}`;
         } catch (err) {
-          console.error('CT prediction failed:', err);
+          console.error(`${type} prediction failed:`, err);
           analyzeBtn.disabled = false;
           analyzeBtn.textContent = 'Analyze →';
-          alert('Could not reach the CT analysis server. Check that the backend is running and reachable, then try again.');
+          alert(`Could not reach the ${type === 'ct' ? 'CT' : 'X-ray'} analysis server. Check that the backend is running and reachable, then try again.`);
         }
       } else {
-        // X-ray backend isn't connected yet — keep existing demo flow
         window.location.href = `result.html?type=${type}`;
       }
     });
