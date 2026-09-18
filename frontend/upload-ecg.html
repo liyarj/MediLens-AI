@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload ECG — MediLens AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .page-header {
+    margin-bottom: 40px;
+  }
+
+  .page-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .upload-panel {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    box-sizing: border-box;
+  }
+
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: #F59E0B;
+    background: #FEF3C7;
+  }
+
+  .upload-zone input[type="file"] {
+    display: none;
+  }
+
+  .upload-icon-badge {
+    width: 56px;
+    height: 56px;
+    background: #FEF3C7;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .upload-icon-badge svg {
+    width: 28px;
+    height: 28px;
+    stroke: #F59E0B;
+  }
+
+  .upload-zone h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .upload-zone p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .file-preview {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 16px;
+  }
+
+  .file-preview.visible {
+    display: flex;
+  }
+
+  .file-preview-icon {
+    width: 36px;
+    height: 36px;
+    background: #FEF3C7;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .file-preview-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #F59E0B;
+  }
+
+  .file-preview-info {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .file-preview-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-preview-size {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .file-preview-remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px;
+  }
+
+  .file-preview-remove:hover {
+    color: #DC2626;
+  }
+
+  .divider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .divider-row .line {
+    flex-grow: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .divider-row span {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .manual-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+
+  .manual-entry label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .manual-entry textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'Inter', monospace;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    resize: vertical;
+  }
+
+  .manual-entry textarea:focus {
+    outline: none;
+    border-color: #F59E0B;
+  }
+
+  .action-row {
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  .btn-ecg {
+    background: #F59E0B;
+  }
+
+  .btn-ecg:hover {
+    background: #D97706;
+  }
+
+  .format-note {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-top: 14px;
+  }
+</style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12h4l2-8 4 16 2-8h4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>MediLens AI</h1>
+        <p>Multimodal Medical Screening System</p>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="support.html">Support</a>
+      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <div class="page-header">
+      <h2>ECG Signal Analysis</h2>
+      <p>Upload your ECG signal data to check for irregular heart rhythms.</p>
+    </div>
+
+    <div class="upload-panel">
+      <label class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept=".csv,.txt">
+        <div class="upload-icon-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 16V4M12 4l-4 4M12 4l4 4"/>
+            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          </svg>
+        </div>
+        <h3>Drop your signal file here, or click to browse</h3>
+        <p>Supports CSV, TXT (max 5MB)</p>
+      </label>
+
+      <div class="file-preview" id="filePreview">
+        <div class="file-preview-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6"/>
+          </svg>
+        </div>
+        <div class="file-preview-info">
+          <div class="file-preview-name" id="fileName">—</div>
+          <div class="file-preview-size" id="fileSize">—</div>
+        </div>
+        <button class="file-preview-remove" id="removeFile" title="Remove file">✕</button>
+      </div>
+
+      <div class="divider-row">
+        <div class="line"></div>
+        <span>OR</span>
+        <div class="line"></div>
+      </div>
+
+      <div class="manual-entry">
+        <label for="manualSignal">Paste raw signal values</label>
+        <textarea id="manualSignal" placeholder="e.g. 0.12, 0.15, 0.18, 0.09, -0.02, ..."></textarea>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary btn-ecg" id="analyzeBtn" disabled>Analyze →</button>
+      </div>
+      <p class="format-note">Your data is analyzed securely and is not stored after screening.</p>
+    </div>
+
+    <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
+  </div>
+
+  <script>
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const removeFile = document.getElementById('removeFile');
+    const manualSignal = document.getElementById('manualSignal');
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showFile(file) {
+      fileName.textContent = file.name;
+      fileSize.textContent = formatBytes(file.size);
+      filePreview.classList.add('visible');
+      analyzeBtn.disabled = false;
+    }
+
+    function checkManualEntry() {
+      if (manualSignal.value.trim().length > 0) {
+        analyzeBtn.disabled = false;
+      } else if (!filePreview.classList.contains('visible')) {
+        analyzeBtn.disabled = true;
+      }
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) showFile(e.target.files[0]);
+    });
+
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        showFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    removeFile.addEventListener('click', (e) => {
+      e.preventDefault();
+      fileInput.value = '';
+      filePreview.classList.remove('visible');
+      checkManualEntry();
+    });
+
+    manualSignal.addEventListener('input', checkManualEntry);
+
+    analyzeBtn.addEventListener('click', () => {
+      window.location.href = 'result.html?type=ecg';
+    });
+  </script>
+
+</body>
+</html>

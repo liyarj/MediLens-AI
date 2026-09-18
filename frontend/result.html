@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results — MediLens AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  /* Left column: scan */
+  .scan-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .scan-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+  }
+
+  .scan-box .placeholder-text {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  /* Waveform placeholder for ECG */
+  .waveform-svg {
+    width: 90%;
+    height: 120px;
+  }
+
+  /* Right column */
+  .prediction-pill {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .prediction-pill.abnormal {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  .prediction-pill.normal {
+    background: #DCFCE7;
+    color: #16A34A;
+  }
+
+  .confidence-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .confidence-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .confidence-track {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+
+  .confidence-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: #DC2626;
+  }
+
+  .section-heading {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .section-sub {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .heatmap-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    height: 160px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .heatmap-gradient {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 40% 45%, rgba(220,38,38,0.55) 0%, rgba(245,158,11,0.35) 30%, rgba(37,99,235,0.12) 55%, transparent 75%);
+  }
+
+  .factors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .factor-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: #334155;
+  }
+
+  .factor-item svg {
+    width: 16px;
+    height: 16px;
+    stroke: #16A34A;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 13px 24px;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  @media (max-width: 800px) {
+    .result-grid { grid-template-columns: 1fr; }
+    .scan-box { height: 300px; }
+  }
+</style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12h4l2-8 4 16 2-8h4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>MediLens AI</h1>
+        <p>Multimodal Medical Screening System</p>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="support.html">Support</a>
+      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="#" class="back-link" id="backLink">← Back</a>
+
+    <div class="page-header">
+      <h2 id="pageTitle">Chest X-Ray Results</h2>
+      <p id="pageSubtitle">Here's what we found.</p>
+    </div>
+
+    <div class="result-grid">
+      <div>
+        <div class="scan-label" id="scanLabel">Your Scan</div>
+        <div class="scan-box" id="scanBox">
+          <span class="placeholder-text">Scan preview</span>
+        </div>
+      </div>
+
+      <div>
+        <span class="prediction-pill abnormal" id="predictionPill">Abnormality Detected</span>
+
+        <div class="confidence-label">Confidence</div>
+        <div class="confidence-value" id="confidenceValue">94.2%</div>
+        <div class="confidence-track">
+          <div class="confidence-fill" id="confidenceFill" style="width: 94.2%;"></div>
+        </div>
+
+        <div class="section-heading" id="explainHeading">Where the model looked</div>
+        <div class="section-sub" id="explainSub">Highlighted areas show regions that most influenced this prediction.</div>
+        <div class="heatmap-box" id="heatmapBox">
+          <div class="heatmap-gradient"></div>
+        </div>
+
+        <div class="section-heading">Contributing Factors</div>
+        <div class="factors-list" id="factorsList">
+          <div class="factor-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Increased opacity in lower lung field</span>
+          </div>
+          <div class="factor-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Irregular tissue density pattern</span>
+          </div>
+          <div class="factor-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Asymmetric lung markings</span>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <a href="index.html" class="btn btn-primary">Analyze Another Scan</a>
+          <a href="risk-summary.html" class="btn btn-secondary">View Combined Risk</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type') || 'xray';
+
+    const config = {
+      xray: {
+        title: 'Chest X-Ray Results',
+        scanLabel: 'Your Scan',
+        prediction: 'Abnormality Detected',
+        status: 'abnormal',
+        confidence: 94.2,
+        explainHeading: 'Where the model looked',
+        explainSub: 'Highlighted areas show regions that most influenced this prediction.',
+        factors: [
+          'Increased opacity in lower lung field',
+          'Irregular tissue density pattern',
+          'Asymmetric lung markings'
+        ],
+        backHref: 'upload.html?type=xray'
+      },
+      ct: {
+        title: 'CT Scan Results',
+        scanLabel: 'Your Scan',
+        prediction: 'Abnormality Detected',
+        status: 'abnormal',
+        confidence: 88.5,
+        explainHeading: 'Where the model looked',
+        explainSub: 'Highlighted areas show regions that most influenced this prediction.',
+        factors: [
+          'Nodule detected in upper right lobe',
+          'Irregular tissue border',
+          'Density inconsistent with surrounding tissue'
+        ],
+        backHref: 'upload.html?type=ct'
+      },
+      ecg: {
+        title: 'ECG Signal Results',
+        scanLabel: 'Your Signal',
+        prediction: 'Abnormal Pattern Detected',
+        status: 'abnormal',
+        confidence: 91.7,
+        explainHeading: 'Signal characteristics',
+        explainSub: 'Key patterns identified from your ECG waveform.',
+        factors: [
+          'Irregular R-R interval pattern',
+          'Elevated signal variation',
+          'Abnormal QRS complex width'
+        ],
+        backHref: 'upload-ecg.html'
+      }
+    };
+
+    const current = config[type] || config.xray;
+
+    document.getElementById('pageTitle').textContent = current.title;
+    document.getElementById('scanLabel').textContent = current.scanLabel;
+    document.getElementById('backLink').setAttribute('href', current.backHref);
+
+    const pill = document.getElementById('predictionPill');
+    pill.textContent = current.prediction;
+    pill.className = 'prediction-pill ' + current.status;
+
+    document.getElementById('confidenceValue').textContent = current.confidence + '%';
+    const fill = document.getElementById('confidenceFill');
+    fill.style.width = current.confidence + '%';
+    fill.style.background = current.status === 'abnormal' ? '#DC2626' : '#16A34A';
+
+    document.getElementById('explainHeading').textContent = current.explainHeading;
+    document.getElementById('explainSub').textContent = current.explainSub;
+
+    const factorsList = document.getElementById('factorsList');
+    factorsList.innerHTML = current.factors.map(f => `
+      <div class="factor-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        <span>${f}</span>
+      </div>
+    `).join('');
+
+    // For ECG, replace the scan image box with a waveform illustration
+    if (type === 'ecg') {
+      document.getElementById('scanBox').innerHTML = `
+        <svg class="waveform-svg" viewBox="0 0 400 100" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M0 50 L40 50 L50 20 L60 80 L70 50 L110 50 L120 30 L130 50 L170 50 L180 15 L190 85 L200 50 L240 50 L250 30 L260 50 L300 50 L310 20 L320 80 L330 50 L400 50"/>
+        </svg>
+      `;
+    }
+
+    // Heatmap not applicable to ECG — swap for a plain note
+    if (type === 'ecg') {
+      document.getElementById('heatmapBox').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:13px;">Signal-based analysis — no visual overlay</div>';
+    }
+  </script>
+
+</body>
+</html>

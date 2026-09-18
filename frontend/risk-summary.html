@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Combined Risk Summary — MediLens AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .page-header {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .page-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .summary-panel {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Gauge card */
+  .gauge-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    margin-bottom: 28px;
+  }
+
+  .gauge-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 20px;
+  }
+
+  .gauge-wrap svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .gauge-track {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 14;
+  }
+
+  .gauge-fill {
+    fill: none;
+    stroke: #DC2626;
+    stroke-width: 14;
+    stroke-linecap: round;
+    stroke-dasharray: 452;
+    stroke-dashoffset: 116;
+    transition: stroke-dashoffset 0.6s ease;
+  }
+
+  .gauge-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .gauge-value .score {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .gauge-value .score span {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .gauge-value .label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #DC2626;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+
+  .gauge-summary {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* Breakdown list */
+  .breakdown-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+
+  .breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .breakdown-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .breakdown-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .breakdown-item.xray .breakdown-icon { background: #DBEAFE; }
+  .breakdown-item.xray .breakdown-icon svg { stroke: #2563EB; }
+
+  .breakdown-item.ecg .breakdown-icon { background: #FEF3C7; }
+  .breakdown-item.ecg .breakdown-icon svg { stroke: #F59E0B; }
+
+  .breakdown-item.ct .breakdown-icon { background: #EDE9FE; }
+  .breakdown-item.ct .breakdown-icon svg { stroke: #7C3AED; }
+
+  .breakdown-info {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  .breakdown-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .breakdown-sub {
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .status-tag {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .status-tag.abnormal {
+    background: #FEE2E2;
+    color: #DC2626;
+  }
+
+  .status-tag.normal {
+    background: #DCFCE7;
+    color: #16A34A;
+  }
+
+  .status-tag.pending {
+    background: #F1F5F9;
+    color: var(--text-muted);
+  }
+
+  .action-row {
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12h4l2-8 4 16 2-8h4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>MediLens AI</h1>
+        <p>Multimodal Medical Screening System</p>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="support.html">Support</a>
+      <a href="upload.html?type=xray" class="nav-cta">Try It</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="index.html" class="back-link">← Back</a>
+
+    <div class="page-header">
+      <h2>Combined Risk Summary</h2>
+      <p>An overall picture based on every scan you've analyzed so far.</p>
+    </div>
+
+    <div class="summary-panel">
+      <div class="gauge-card">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 160 160">
+            <circle class="gauge-track" cx="80" cy="80" r="72"/>
+            <circle class="gauge-fill" cx="80" cy="80" r="72"/>
+          </svg>
+          <div class="gauge-value">
+            <div class="score">78<span>/100</span></div>
+            <div class="label">High Risk</div>
+          </div>
+        </div>
+        <p class="gauge-summary">2 out of 3 analyzed scans show signs worth a closer look. We recommend sharing this report with a medical professional.</p>
+      </div>
+
+      <h3 class="breakdown-heading">What We Looked At</h3>
+      <div class="breakdown-list">
+        <div class="breakdown-item xray">
+          <div class="breakdown-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
+            </svg>
+          </div>
+          <div class="breakdown-info">
+            <div class="breakdown-title">Chest X-Ray</div>
+            <div class="breakdown-sub">94.2% confidence</div>
+          </div>
+          <span class="status-tag abnormal">Abnormal</span>
+        </div>
+
+        <div class="breakdown-item ecg">
+          <div class="breakdown-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
+            </svg>
+          </div>
+          <div class="breakdown-info">
+            <div class="breakdown-title">ECG Signal</div>
+            <div class="breakdown-sub">91.7% confidence</div>
+          </div>
+          <span class="status-tag abnormal">Abnormal</span>
+        </div>
+
+        <div class="breakdown-item ct">
+          <div class="breakdown-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 3v18M3 12h18"/>
+            </svg>
+          </div>
+          <div class="breakdown-info">
+            <div class="breakdown-title">CT Scan</div>
+            <div class="breakdown-sub">Not yet analyzed</div>
+          </div>
+          <span class="status-tag pending">Pending</span>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <a href="index.html" class="btn btn-primary">Analyze Another Scan</a>
+      </div>
+    </div>
+
+    <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
+  </div>
+
+</body>
+</html>
