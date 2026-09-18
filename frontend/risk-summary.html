@@ -184,64 +184,24 @@
           <svg viewBox="0 0 160 160">
             <defs>
               <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#F87171"/>
-                <stop offset="100%" stop-color="#F59E0B"/>
+                <stop offset="0%" stop-color="#F87171" id="gaugeStop0"/>
+                <stop offset="100%" stop-color="#F59E0B" id="gaugeStop1"/>
               </linearGradient>
             </defs>
             <circle class="gauge-track" cx="80" cy="80" r="72"/>
-            <circle class="gauge-fill" cx="80" cy="80" r="72"/>
+            <circle class="gauge-fill" cx="80" cy="80" r="72" id="gaugeFill"/>
           </svg>
           <div class="gauge-value">
-            <div class="score">78<span>/100</span></div>
-            <div class="label">High Risk</div>
+            <div class="score" id="gaugeScore">--<span>/100</span></div>
+            <div class="label" id="gaugeLabel">Awaiting Scans</div>
           </div>
         </div>
-        <p class="gauge-summary">2 out of 3 analyzed scans show signs worth a closer look. We recommend sharing this report with a medical professional.</p>
+        <p class="gauge-summary" id="gaugeSummary">Analyze at least two scans to see a combined risk summary.</p>
       </div>
 
       <div>
         <h3 class="breakdown-heading">What We Looked At</h3>
-        <div class="breakdown-list">
-          <div class="breakdown-item xray">
-            <div class="breakdown-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>
-              </svg>
-            </div>
-            <div class="breakdown-info">
-              <div class="breakdown-title">Chest X-Ray</div>
-              <div class="breakdown-sub">94.2% confidence</div>
-            </div>
-            <span class="status-tag abnormal">Abnormal</span>
-          </div>
-
-          <div class="breakdown-item ecg">
-            <div class="breakdown-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>
-              </svg>
-            </div>
-            <div class="breakdown-info">
-              <div class="breakdown-title">ECG Signal</div>
-              <div class="breakdown-sub">91.7% confidence</div>
-            </div>
-            <span class="status-tag abnormal">Abnormal</span>
-          </div>
-
-          <div class="breakdown-item ct">
-            <div class="breakdown-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9"/>
-                <path d="M12 3v18M3 12h18"/>
-              </svg>
-            </div>
-            <div class="breakdown-info">
-              <div class="breakdown-title">CT Scan</div>
-              <div class="breakdown-sub">Not yet analyzed</div>
-            </div>
-            <span class="status-tag pending">Pending</span>
-          </div>
-        </div>
+        <div class="breakdown-list" id="breakdownList"></div>
 
         <a href="index.html" class="btn btn-primary">Analyze Another Scan</a>
       </div>
@@ -249,6 +209,127 @@
 
     <p class="disclaimer">MediLens AI is a screening support tool, not a diagnostic device. Always consult a medical professional.</p>
   </div>
+
+  <script>
+    // Pull real results from localStorage for each modality, normalizing each into
+    // { analyzed, status: 'normal'|'abnormal', sub: display text for the breakdown row }
+    function getXrayResult() {
+      const raw = localStorage.getItem('medilens_xray_result');
+      if (!raw) return { analyzed: false };
+      try {
+        const real = JSON.parse(raw);
+        const isNormal = real.prediction === 'NORMAL_LIKE';
+        const score = typeof real.anomaly_score === 'number' ? real.anomaly_score : parseFloat(real.anomaly_score) || 0;
+        const threshold = typeof real.threshold === 'number' ? real.threshold : parseFloat(real.threshold) || 0;
+        const ratioPct = threshold > 0 ? Math.round((score / threshold) * 100) : 0;
+        return { analyzed: true, status: isNormal ? 'normal' : 'abnormal', sub: `${ratioPct}% of threshold` };
+      } catch (e) {
+        return { analyzed: false };
+      }
+    }
+
+    function getCtResult() {
+      const raw = localStorage.getItem('medilens_ct_result');
+      if (!raw) return { analyzed: false };
+      try {
+        const real = JSON.parse(raw);
+        const label = real.label || 'Unknown';
+        const isNormal = label.toLowerCase().includes('non-covid') || label.toLowerCase() === 'non covid';
+        const confidence = typeof real.confidence === 'number' ? real.confidence : parseFloat(real.confidence) || 0;
+        return { analyzed: true, status: isNormal ? 'normal' : 'abnormal', sub: `${confidence}% confidence` };
+      } catch (e) {
+        return { analyzed: false };
+      }
+    }
+
+    function getEcgResult() {
+      const raw = localStorage.getItem('medilens_ecg_result');
+      if (!raw) return { analyzed: false };
+      try {
+        const real = JSON.parse(raw);
+        const predictedClass = real.predicted_class || 'Unknown';
+        const isNormal = predictedClass.toLowerCase().includes('normal');
+        const confidence = typeof real.confidence_percentage === 'number'
+          ? real.confidence_percentage
+          : parseFloat(real.confidence_percentage) || 0;
+        return { analyzed: true, status: isNormal ? 'normal' : 'abnormal', sub: `${confidence}% confidence` };
+      } catch (e) {
+        return { analyzed: false };
+      }
+    }
+
+    const modalities = [
+      { key: 'xray', title: 'Chest X-Ray', result: getXrayResult(), icon: '<path d="M6 4v16M18 4v16M6 8h12M6 16h12"/>' },
+      { key: 'ecg', title: 'ECG Signal', result: getEcgResult(), icon: '<path d="M2 12h4l2 8 4-16 2 8h4l2-4 2 4h2"/>' },
+      { key: 'ct', title: 'CT Scan', result: getCtResult(), icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/>' }
+    ];
+
+    // Render the breakdown list — every modality shown, analyzed or not
+    const breakdownList = document.getElementById('breakdownList');
+    breakdownList.innerHTML = modalities.map(m => {
+      const r = m.result;
+      const statusClass = r.analyzed ? r.status : 'pending';
+      const statusText = r.analyzed ? (r.status === 'abnormal' ? 'Abnormal' : 'Normal') : 'Pending';
+      const subText = r.analyzed ? r.sub : 'Not yet analyzed';
+      return `
+        <div class="breakdown-item ${m.key}">
+          <div class="breakdown-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg>
+          </div>
+          <div class="breakdown-info">
+            <div class="breakdown-title">${m.title}</div>
+            <div class="breakdown-sub">${subText}</div>
+          </div>
+          <span class="status-tag ${statusClass}">${statusText}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Compute the combined score from whichever scans have actually been analyzed
+    const analyzed = modalities.filter(m => m.result.analyzed);
+    const abnormalCount = analyzed.filter(m => m.result.status === 'abnormal').length;
+
+    const gaugeFill = document.getElementById('gaugeFill');
+    const gaugeScore = document.getElementById('gaugeScore');
+    const gaugeLabel = document.getElementById('gaugeLabel');
+    const gaugeSummary = document.getElementById('gaugeSummary');
+    const stop0 = document.getElementById('gaugeStop0');
+    const stop1 = document.getElementById('gaugeStop1');
+    const CIRCUMFERENCE = 452.39;
+
+    if (analyzed.length < 2) {
+      // Not enough real data yet — say so honestly instead of showing a fake score
+      gaugeFill.style.strokeDashoffset = CIRCUMFERENCE;
+      gaugeScore.innerHTML = '--<span>/100</span>';
+      gaugeLabel.textContent = 'Awaiting Scans';
+      gaugeLabel.style.color = 'rgba(255,255,255,0.45)';
+      stop0.setAttribute('stop-color', 'rgba(255,255,255,0.15)');
+      stop1.setAttribute('stop-color', 'rgba(255,255,255,0.15)');
+      gaugeSummary.textContent = `You've analyzed ${analyzed.length} of 3 scan types so far. Analyze at least 2 to see a combined risk summary.`;
+    } else {
+      const score = Math.round((abnormalCount / analyzed.length) * 100);
+      const offset = CIRCUMFERENCE * (1 - score / 100);
+      gaugeFill.style.strokeDashoffset = offset;
+      gaugeScore.innerHTML = `${score}<span>/100</span>`;
+
+      let level, color0, color1;
+      if (score === 0) {
+        level = 'Low Risk'; color0 = '#4ADE80'; color1 = '#86EFAC';
+      } else if (score < 60) {
+        level = 'Moderate Risk'; color0 = '#F59E0B'; color1 = '#FCD34D';
+      } else {
+        level = 'High Risk'; color0 = '#F87171'; color1 = '#F59E0B';
+      }
+      gaugeLabel.textContent = level;
+      gaugeLabel.style.color = color0;
+      stop0.setAttribute('stop-color', color0);
+      stop1.setAttribute('stop-color', color1);
+
+      gaugeSummary.textContent = abnormalCount === 0
+        ? `None of the ${analyzed.length} analyzed scans showed signs of concern. That's a good sign — always confirm with a medical professional.`
+        : `${abnormalCount} out of ${analyzed.length} analyzed scans show signs worth a closer look. We recommend sharing this report with a medical professional.`;
+    }
+  </script>
 
 </body>
 </html>
